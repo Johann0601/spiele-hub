@@ -11,6 +11,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.4.1',
+    date: '2026-06-12',
+    title: 'Aufgeräumte Startseite & Sidebar-Verhalten',
+    changes: [
+      'Startseite verschlankt: Die Karten „Updates" und „System / Treiber" sind weg — das übernimmt jetzt die 🔔-Glocke.',
+      'Seitwärts scrollbare Reihen reagieren nicht mehr aufs Mausrad (nur noch per Scrollbalken) — das Rad scrollt überall ganz normal die Seite hoch und runter.',
+      'Die Seitenleiste verdeckt beim Aufklappen nichts mehr: Der Inhalt rückt sanft mit zur Seite, und die Leiste klappt erst nach kurzem Verweilen auf.'
+    ]
+  },
+  {
     version: '0.4.0',
     date: '2026-06-12',
     title: 'Benachrichtigungen',

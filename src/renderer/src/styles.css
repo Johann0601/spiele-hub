@@ -78,8 +78,9 @@ body {
   overflow: hidden;
 }
 
-/* Schmaler Balken am Rand; beim Drüberfahren klappt er ÜBER den Inhalt auf
-   (fixiert + Überbreite), damit nichts hin- und herspringt. */
+/* Schmaler Balken am Rand; beim Drüberfahren klappt er auf und SCHIEBT den
+   Inhalt zur Seite (statt ihn zu überdecken). Die kleine Verzögerung beim
+   Aufklappen verhindert, dass die Leiste bei jedem Vorbeifahren aufschnappt. */
 .sidebar {
   position: fixed;
   left: 0;
@@ -95,12 +96,12 @@ body {
   gap: 6px;
   overflow: hidden;
   white-space: nowrap;
-  transition: width 0.16s ease, box-shadow 0.16s ease;
+  transition: width 0.16s ease; /* Zuklappen: sofort */
 }
 
 .sidebar:hover {
   width: 216px;
-  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.35);
+  transition-delay: 0.18s; /* Aufklappen: erst nach kurzem Verweilen */
 }
 
 /* Beschriftungen erscheinen erst im ausgeklappten Zustand — und nehmen
@@ -118,6 +119,7 @@ body {
 .sidebar:hover .nav-label {
   max-width: 170px;
   opacity: 1;
+  transition-delay: 0.18s;
 }
 
 .sidebar-brand {
@@ -197,6 +199,13 @@ body {
   height: 100vh;
   overflow-y: auto;
   margin-left: 62px; /* Platz für den eingeklappten Balken */
+  transition: margin-left 0.16s ease;
+}
+
+/* Leiste ausgeklappt -> Inhalt rückt mit, nichts wird verdeckt. */
+.sidebar:hover + .shell-content {
+  margin-left: 216px;
+  transition-delay: 0.18s;
 }
 
 .app {

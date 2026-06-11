@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react'
-import type { EpicFreeGame, GameCard, NvidiaUpdate, SteamOffer, WotStatus } from '@shared/types'
+import { useEffect, useState, type ReactNode } from 'react'
+import type { EpicFreeGame, GameCard, SteamOffer, WotStatus } from '@shared/types'
 import type { View } from './App'
 import { formatLastPlayed, formatPlaytime } from './format'
 
@@ -13,7 +13,6 @@ function HomeView({
   const [games, setGames] = useState<GameCard[]>([])
   const [wot, setWot] = useState<WotStatus | null>(null)
   const [mcCount, setMcCount] = useState<number | null>(null)
-  const [nvidia, setNvidia] = useState<NvidiaUpdate | 'loading' | null>('loading')
   const [freeGames, setFreeGames] = useState<EpicFreeGame[]>([])
   const [steamOffers, setSteamOffers] = useState<SteamOffer[]>([])
 
@@ -40,21 +39,10 @@ function HomeView({
       .getSteamOffers()
       .then((o) => setSteamOffers(o.slice(0, 12)))
       .catch(() => {})
-    // Nvidia-Treiber-Status für die Treiber-Karte.
-    ;(async () => {
-      try {
-        const devices = await window.api.getDevices()
-        const gpu = devices.find((d) => d.isNvidiaGpu)
-        setNvidia(gpu ? await window.api.checkNvidiaUpdate(gpu.name, gpu.driverVersion) : null)
-      } catch {
-        setNvidia(null)
-      }
-    })()
   }, [])
 
   const playable = games.filter((g) => g.kind === 'game')
   const launchers = games.filter((g) => g.kind === 'launcher')
-  const pendingUpdates = playable.filter((g) => g.updatePending).length
   const totalSec = playable.reduce((s, g) => s + g.totalPlaytimeSec, 0)
   const recent = playable
     .filter((g) => g.lastPlayed)
@@ -85,17 +73,6 @@ function HomeView({
           </button>
 
           <button
-            className={`stat-card ${pendingUpdates > 0 ? 'attention' : ''}`}
-            onClick={() => onNavigate('updates')}
-          >
-            <span className="stat-card-icon">⬆️</span>
-            <span className="stat-card-title">Updates</span>
-            <span className="stat-card-info">
-              {pendingUpdates > 0 ? `${pendingUpdates} ausstehend` : 'alles aktuell ✓'}
-            </span>
-          </button>
-
-          <button
             className={`stat-card ${wotRestore > 0 ? 'attention' : ''}`}
             onClick={() => onNavigate('mods')}
           >
@@ -113,22 +90,6 @@ function HomeView({
             </span>
           </button>
 
-          <button
-            className={`stat-card ${nvidia !== 'loading' && nvidia?.updateAvailable ? 'attention' : ''}`}
-            onClick={() => onNavigate('settings-system')}
-          >
-            <span className="stat-card-icon">🖥️</span>
-            <span className="stat-card-title">System / Treiber</span>
-            <span className="stat-card-info">
-              {nvidia === 'loading'
-                ? 'prüfe Nvidia-Treiber …'
-                : nvidia?.updateAvailable
-                  ? `Treiber-Update ${nvidia.latestVersion} verfügbar`
-                  : nvidia?.ok
-                    ? 'Nvidia-Treiber aktuell ✓'
-                    : 'Geräte & Treiber ansehen'}
-            </span>
-          </button>
         </div>
 
         {/* Schnellauswahl: zuletzt gespielt, Klick = direkt starten */}
@@ -252,30 +213,10 @@ function HomeView({
   )
 }
 
-/** Seitlich scrollbare Reihe: Das Mausrad scrollt NUR die Reihe (horizontal),
- *  die Seite selbst bleibt stehen. Dafür muss der Wheel-Listener von Hand mit
- *  passive:false registriert werden — nur so darf er preventDefault aufrufen. */
+/** Seitlich scrollbare Reihe. Bewusst OHNE Mausrad-Steuerung: Das Rad scrollt
+ *  immer die Seite hoch/runter, die Reihe bewegt man am Scrollbalken. */
 function OfferRow({ children }: { children: ReactNode }): JSX.Element {
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const onWheel = (e: WheelEvent): void => {
-      if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
-        e.preventDefault() // Seite nicht vertikal scrollen
-        el.scrollLeft += e.deltaY
-      }
-    }
-    el.addEventListener('wheel', onWheel, { passive: false })
-    return () => el.removeEventListener('wheel', onWheel)
-  }, [])
-
-  return (
-    <div className="offer-row" ref={ref}>
-      {children}
-    </div>
-  )
+  return <div className="offer-row">{children}</div>
 }
 
 // Kachel der Schnellauswahl: Klick aufs Bild = Detailansicht öffnen,
