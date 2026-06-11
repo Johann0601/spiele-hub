@@ -1,0 +1,48 @@
+# Konfiguration für electron-builder — baut aus dem electron-vite-Output (out/)
+# einen Windows-Installer (NSIS). Aufruf: npm run dist
+
+appId: com.spielehub.app
+productName: Spiele Hub
+
+# Wohin Releases hochgeladen werden UND wo die installierte App nach Updates
+# sucht (electron-updater liest das aus der mitgepackten app-update.yml).
+publish:
+  provider: github
+  owner: Johann0601
+  repo: spiele-hub
+
+directories:
+  output: release # hier landet die fertige Setup-exe
+  buildResources: build # optional: icon.ico etc. (kommt später)
+
+# Was in die App gepackt wird: der gebaute Code + package.json.
+# Die dependencies aus package.json (better-sqlite3 usw.) nimmt
+# electron-builder automatisch aus node_modules mit.
+files:
+  - out/**
+  - package.json
+
+# WICHTIG für diesen PC: keine nativen Module neu kompilieren (es gibt keine
+# VC++-Build-Tools). Das Electron-Prebuild von better-sqlite3 liegt schon
+# in node_modules (postinstall: electron-builder install-app-deps).
+npmRebuild: false
+
+# Native .node-Dateien dürfen nicht ins asar-Archiv (Windows kann DLLs
+# nicht aus einem Archiv laden) — sie werden daneben entpackt abgelegt.
+asarUnpack:
+  - '**/*.node'
+
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+
+nsis:
+  # Ein-Klick-Installer wie bei Discord: ausführen → installiert → startet.
+  oneClick: true
+  perMachine: false # Installation pro Benutzer, braucht keine Admin-Rechte
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+  shortcutName: Spiele Hub
+  artifactName: Spiele Hub Setup ${version}.exe
+  deleteAppDataOnUninstall: false # Deinstallation löscht NICHT die Spielzeit-DB

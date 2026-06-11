@@ -1,0 +1,1111 @@
+:root {
+  --bg: #0f1117;
+  --panel: #181b24;
+  --panel-2: #1f2330;
+  --text: #e6e8ee;
+  --muted: #9aa3b2;
+  --accent: #6c8cff;
+  --ok: #4ade80;
+  --error: #f87171;
+  --border: #262b39;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Dezente, dunkle Scrollbar statt Chromiums weißer Standard-Leiste ---- */
+* {
+  scrollbar-width: thin; /* Firefox/Chromium-Fallback */
+  scrollbar-color: #2c3346 transparent;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #2c3346;
+  border-radius: 10px;
+  /* der Rand in Hintergrundfarbe lässt den Griff schlanker "schweben" */
+  border: 3px solid var(--bg);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3b455c;
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* ---- App-Hülle: Seitenleiste + Inhalt ---- */
+.shell {
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.sidebar {
+  flex: 0 0 210px;
+  background: #0c0e14;
+  border-right: 1px solid var(--border);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sidebar-brand {
+  font-size: 18px;
+  font-weight: 700;
+  padding: 8px 12px 18px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.12s;
+}
+
+.sidebar-brand:hover,
+.sidebar-brand.active {
+  color: var(--accent);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 11px 12px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.nav-item:hover {
+  background: var(--panel);
+  color: var(--text);
+}
+
+.nav-item.active {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.nav-icon {
+  font-size: 16px;
+}
+
+.shell-content {
+  flex: 1;
+  min-width: 0;
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+
+/* ---- Kopfzeile ---- */
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #141824, #0f1117);
+}
+
+.brand {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 20px;
+  letter-spacing: 0.3px;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.btn {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 9px 16px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  background: #2a3042;
+  border-color: var(--accent);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* ---- Inhalt ---- */
+.content {
+  padding: 22px 24px 40px;
+  flex: 1;
+}
+
+.banner {
+  padding: 12px 16px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.banner.error {
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  color: #fca5a5;
+}
+
+.path-hint {
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 18px;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 40px 0;
+  text-align: center;
+}
+
+/* ---- Abschnitts-Überschrift ---- */
+.section-title {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--muted);
+  margin: 4px 0 14px;
+}
+
+/* ---- Launcher-Leiste ---- */
+.launcher-section {
+  margin-bottom: 30px;
+}
+
+.launcher-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.launcher-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 10px 16px 10px 10px;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, background 0.12s ease;
+}
+
+.launcher-chip:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+
+.launcher-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 7px;
+  object-fit: contain;
+  flex: 0 0 32px;
+}
+
+.launcher-icon.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--panel-2);
+  color: var(--muted);
+  font-weight: 700;
+}
+
+/* ---- Grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 18px;
+}
+
+.tile {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tile:hover {
+  transform: translateY(-4px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+
+/* Cover im Steam-typischen Hochformat 2:3 */
+.cover {
+  position: relative;
+  aspect-ratio: 2 / 3;
+  background: var(--panel-2);
+}
+
+.cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cover-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--muted);
+  background: linear-gradient(135deg, #232838, #161a24);
+}
+
+.badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(15, 17, 23, 0.85);
+  color: var(--text);
+  font-size: 12px;
+  padding: 3px 8px;
+  border-radius: 7px;
+  backdrop-filter: blur(4px);
+}
+
+.tile-info {
+  padding: 10px 12px 12px;
+}
+
+.tile-name {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tile-meta {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ---- Laufendes Spiel ---- */
+.tile.running {
+  border-color: var(--ok);
+  box-shadow: 0 0 0 1px var(--ok), 0 8px 22px rgba(74, 222, 128, 0.18);
+}
+
+.live-dot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 17, 23, 0.85);
+  color: var(--ok);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 7px;
+  backdrop-filter: blur(4px);
+}
+
+.live-dot.big {
+  font-size: 13px;
+  position: static;
+}
+
+/* ---- Detailansicht ---- */
+.content.detail {
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.detail-cover {
+  flex: 0 0 280px;
+  aspect-ratio: 2 / 3;
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+}
+
+.detail-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.detail-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.detail-info h2 {
+  margin: 4px 0 22px;
+  font-size: 26px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 18px;
+  margin-bottom: 26px;
+}
+
+.stat {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 180px;
+}
+
+.stat-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.edit-btn {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 12px;
+  margin-left: 6px;
+  padding: 0;
+}
+
+.edit-btn:hover {
+  color: var(--accent);
+}
+
+.stat-edit {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.stat-edit input {
+  width: 120px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 14px;
+}
+
+.stat-edit input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  padding: 11px 22px;
+}
+
+.btn.primary:hover:not(:disabled) {
+  background: #5a7cff;
+}
+
+.btn.danger {
+  background: #3a1f25;
+  border-color: var(--error);
+  color: #fca5a5;
+  font-weight: 600;
+  padding: 11px 22px;
+}
+
+.btn.danger:hover:not(:disabled) {
+  background: #4a262e;
+}
+
+.install-path {
+  color: var(--muted);
+  font-size: 12px;
+  word-break: break-all;
+  background: var(--panel-2);
+  padding: 8px 12px;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.notice {
+  margin-bottom: 18px;
+  padding: 11px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  background: rgba(108, 140, 255, 0.12);
+  border: 1px solid rgba(108, 140, 255, 0.4);
+  color: #b9c6ff;
+  max-width: 520px;
+}
+
+/* ---- System / Treiber ---- */
+.banner.info {
+  background: rgba(108, 140, 255, 0.1);
+  border: 1px solid rgba(108, 140, 255, 0.35);
+  color: #c2cdff;
+  line-height: 1.5;
+  max-width: 760px;
+}
+
+.filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0 0 24px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 13px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, opacity 0.12s;
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip.off {
+  opacity: 0.4;
+  text-decoration: line-through;
+}
+
+.chip-count {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border-radius: 999px;
+  padding: 1px 7px;
+}
+
+.device-group {
+  margin-bottom: 18px;
+}
+
+/* Klappbarer Kategorie-Kopf */
+.group-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 860px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  padding: 8px 2px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.group-header:hover .group-title {
+  color: var(--accent);
+}
+
+.caret {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--muted);
+  transition: transform 0.15s ease;
+}
+
+.caret.closed {
+  transform: rotate(-90deg);
+}
+
+.group-title {
+  letter-spacing: 0.3px;
+}
+
+.group-count {
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--panel-2);
+  border-radius: 999px;
+  padding: 1px 8px;
+}
+
+/* Festplatten-Füllstand */
+.storage {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.storage-track {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  overflow: hidden;
+}
+
+.storage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6c8cff, #8aa2ff);
+  border-radius: 999px;
+}
+
+.storage-fill.full {
+  background: linear-gradient(90deg, #f59e42, #f87171);
+}
+
+.storage-text {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.device-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 860px;
+}
+
+.device-row {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 14px 18px;
+}
+
+.device-row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* ---- Nvidia-Update-Status ---- */
+.nvidia-update {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 9px;
+}
+
+.nvidia-update.loading,
+.nvidia-update.muted {
+  color: var(--muted);
+  background: var(--panel-2);
+}
+
+.nvidia-update.ok {
+  color: var(--ok);
+  background: rgba(74, 222, 128, 0.1);
+  border: 1px solid rgba(74, 222, 128, 0.3);
+}
+
+.nvidia-update.available {
+  color: #ffd27a;
+  background: rgba(255, 184, 77, 0.12);
+  border: 1px solid rgba(255, 184, 77, 0.45);
+}
+
+.btn.small {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  white-space: nowrap;
+}
+
+.btn.small:hover {
+  background: #5a7cff;
+}
+
+.device-main {
+  min-width: 0;
+}
+
+.device-name {
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.device-vendor {
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.device-driver {
+  text-align: right;
+  flex: 0 0 auto;
+}
+
+.driver-version {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.driver-date {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.tag {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+}
+
+.tag.nvidia {
+  background: rgba(118, 185, 0, 0.15);
+  border: 1px solid rgba(118, 185, 0, 0.5);
+  color: #9fd84b;
+}
+
+.tag.update {
+  background: rgba(255, 184, 77, 0.15);
+  border: 1px solid rgba(255, 184, 77, 0.5);
+  color: #ffd27a;
+}
+
+/* ---- Updates: Kachel-Badge + Historie ---- */
+.update-dot {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 17, 23, 0.85);
+  color: #ffd27a;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 7px;
+  backdrop-filter: blur(4px);
+}
+
+.empty-inline {
+  color: var(--muted);
+  font-size: 14px;
+  padding: 10px 0 4px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 860px;
+}
+
+.history-row {
+  display: grid;
+  grid-template-columns: 110px 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.history-type {
+  font-weight: 700;
+}
+
+.history-type.installiert {
+  color: var(--ok);
+}
+
+.history-type.erkannt {
+  color: #ffd27a;
+}
+
+.history-game {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.history-build {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.history-date {
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---- WoT Mods: Kopfzeilen-Buttons + Toggle-Switch ---- */
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  flex: 0 0 44px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.slider::before {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  left: 3px;
+  top: 3px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.switch input:checked + .slider {
+  background: rgba(74, 222, 128, 0.25);
+  border-color: var(--ok);
+}
+
+.switch input:checked + .slider::before {
+  transform: translateX(20px);
+  background: var(--ok);
+}
+
+.switch input:disabled + .slider {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ---- Startseite ---- */
+.stat-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 14px;
+  margin-bottom: 30px;
+  max-width: 1100px;
+}
+
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  padding: 18px 20px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.stat-card.attention {
+  border-color: rgba(255, 184, 77, 0.6);
+  background: rgba(255, 184, 77, 0.07);
+}
+
+.stat-card-icon {
+  font-size: 22px;
+}
+
+.stat-card-title {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.stat-card-info {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.stat-card.attention .stat-card-info {
+  color: #ffd27a;
+  font-weight: 600;
+}
+
+.home-grid {
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  max-width: 1100px;
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  color: #fff;
+  background: rgba(15, 17, 23, 0.55);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.tile:hover .play-overlay {
+  opacity: 1;
+}
+
+/* ---- Mods: Spielauswahl ---- */
+.mod-section-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  max-width: 900px;
+}
+
+.mod-section-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.mod-section-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.4);
+}
+
+.mod-section-icon {
+  font-size: 32px;
+}
+
+.mod-section-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.mod-section-desc {
+  font-size: 13px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.mod-section-cta {
+  margin-top: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.hint {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+/* ---- Minecraft-Profile ---- */
+.mc-group-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.mc-group-header .section-title {
+  margin: 0;
+}
+
+.btn.tiny {
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.mc-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.mc-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 9px;
+  object-fit: cover;
+  flex: 0 0 44px;
+  background: var(--panel-2);
+}
+
+.mc-icon.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+}
+
+.mc-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 0 0 auto;
+}
+
+.mc-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+/* ---- Sidebar-Fußzeile: App-Version / App-Update bereit ---- */
+.sidebar-footer {
+  margin-top: auto;
+  padding: 10px 12px 4px;
+}
+
+.app-version {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.update-ready-btn {
+  width: 100%;
+  text-align: left;
+  background: rgba(255, 184, 77, 0.1);
+  border: 1px solid rgba(255, 184, 77, 0.6);
+  border-radius: 9px;
+  padding: 9px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #ffd27a;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+
+.update-ready-btn:hover {
+  background: rgba(255, 184, 77, 0.2);
+}

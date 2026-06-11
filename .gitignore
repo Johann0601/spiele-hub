@@ -1,0 +1,21 @@
+# Abhängigkeiten
+node_modules/
+
+# Build-Ausgaben
+out/
+dist/
+release/
+*.log
+
+# OS / Editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# lokale Umgebungsdateien
+.env
+.env.local
+
+# Claude-Code-Arbeitsdateien
+.claude/
