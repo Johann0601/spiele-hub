@@ -120,3 +120,18 @@ export interface ScanResult {
   games: GameCard[]
   error?: string
 }
+
+// --- Konten: verbundene externe Konten (z. B. Epic) ---
+
+/** Zustand der Epic-Konto-Verbindung. */
+export interface EpicAccountStatus {
+  connected: boolean
+  displayName: string | null
+}
+
+/** Ergebnis des Epic-Spielzeit-Abgleichs. */
+export interface EpicSyncResult {
+  ok: boolean
+  updatedGames: number // wie viele Spiele eine neue Spielzeit bekommen haben
+  error?: string
+}

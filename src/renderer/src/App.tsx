@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GameCard, RunningGame } from '@shared/types'
 import { formatLastPlayed, formatPlaytime } from './format'
+import AccountsView from './AccountsView'
 import ChangelogView from './ChangelogView'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
 import SystemView from './SystemView'
 import UpdatesView from './UpdatesView'
 
-export type View = 'home' | 'games' | 'updates' | 'mods' | 'system' | 'changelog'
+export type View = 'home' | 'games' | 'updates' | 'mods' | 'system' | 'accounts' | 'changelog'
 
 // Die App-Hülle: feste Seitenleiste links, daneben die aktive Ansicht.
 function App(): JSX.Element {
@@ -55,6 +56,12 @@ function App(): JSX.Element {
           <span className="nav-icon">🖥️</span> System / Treiber
         </button>
         <button
+          className={`nav-item ${view === 'accounts' ? 'active' : ''}`}
+          onClick={() => setView('accounts')}
+        >
+          <span className="nav-icon">👤</span> Konten
+        </button>
+        <button
           className={`nav-item ${view === 'changelog' ? 'active' : ''}`}
           onClick={() => setView('changelog')}
         >
@@ -80,6 +87,7 @@ function App(): JSX.Element {
         {view === 'updates' && <UpdatesView />}
         {view === 'mods' && <ModsView />}
         {view === 'system' && <SystemView />}
+        {view === 'accounts' && <AccountsView />}
         {view === 'changelog' && <ChangelogView />}
       </div>
     </div>

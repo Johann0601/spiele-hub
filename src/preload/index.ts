@@ -2,6 +2,8 @@ import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type {
   DeviceInfo,
+  EpicAccountStatus,
+  EpicSyncResult,
   GameCard,
   NvidiaUpdate,
   RunningGame,
@@ -84,7 +86,17 @@ const api = {
 
   /** Phase 5: Minecraft-Profile/Modpacks aller Launcher. */
   getMcProfiles: (): Promise<McProfile[]> => ipcRenderer.invoke('mc:profiles'),
-  openMcFolder: (path: string): Promise<void> => ipcRenderer.invoke('mc:open-folder', path)
+  openMcFolder: (path: string): Promise<void> => ipcRenderer.invoke('mc:open-folder', path),
+
+  /** Konten: Epic-Verbindung verwalten. */
+  getEpicStatus: (): Promise<EpicAccountStatus> => ipcRenderer.invoke('epic:status'),
+  openEpicLogin: (): Promise<void> => ipcRenderer.invoke('epic:open-login'),
+  epicLogin: (
+    code: string
+  ): Promise<{ ok: true; status: EpicAccountStatus } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('epic:login', code),
+  epicLogout: (): Promise<EpicAccountStatus> => ipcRenderer.invoke('epic:logout'),
+  syncEpicPlaytime: (): Promise<EpicSyncResult> => ipcRenderer.invoke('epic:sync-playtime')
 }
 
 if (process.contextIsolated) {

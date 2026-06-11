@@ -25,6 +25,13 @@ import {
   toggleWotMod
 } from './services/wot'
 import { listMcProfiles } from './services/minecraft'
+import {
+  EPIC_LOGIN_URL,
+  epicAccountStatus,
+  epicLoginWithCode,
+  epicLogout,
+  syncEpicPlaytime
+} from './services/epic/account'
 
 // Referenz aufs Hauptfenster, damit der Wächter Live-Updates schicken kann.
 let mainWindow: BrowserWindow | null = null
@@ -206,6 +213,39 @@ app.whenReady().then(() => {
   ipcMain.handle('wot:restore', () => restoreWotMods())
   ipcMain.handle('wot:add', () => addWotMods())
   ipcMain.handle('wot:open-folder', () => openWotModsFolder())
+
+  // Konten: Epic-Konto verbinden, Status, Spielzeit-Abgleich.
+  ipcMain.handle('epic:status', () => epicAccountStatus())
+  ipcMain.handle('epic:open-login', () => shell.openExternal(EPIC_LOGIN_URL))
+  ipcMain.handle('epic:login', async (_e, code: string) => {
+    try {
+      return { ok: true as const, status: await epicLoginWithCode(code) }
+    } catch (err) {
+      return { ok: false as const, error: String(err instanceof Error ? err.message : err) }
+    }
+  })
+  ipcMain.handle('epic:logout', () => {
+    epicLogout()
+    return epicAccountStatus()
+  })
+  ipcMain.handle('epic:sync-playtime', async () => {
+    const result = await syncEpicPlaytime()
+    if (result.ok && result.updatedGames > 0 && mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('games:refresh')
+    }
+    return result
+  })
+
+  // Beim Start (falls verbunden) die Epic-Spielzeiten still abgleichen.
+  if (epicAccountStatus().connected) {
+    syncEpicPlaytime()
+      .then((r) => {
+        if (r.ok && r.updatedGames > 0 && mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('games:refresh')
+        }
+      })
+      .catch(() => {})
+  }
 
   // Phase 6: installierte Geräte + Treiberversionen auslesen.
   ipcMain.handle('system:devices', () => readDevices())

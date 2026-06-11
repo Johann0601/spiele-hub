@@ -316,6 +316,26 @@ export function setImportedPlaytime(gameId: number, seconds: number): void {
     .run(Math.max(0, Math.floor(seconds)), gameId)
 }
 
+/**
+ * Alle Spiele einer Plattform mit Startwert und Summe der eigenen Sitzungen —
+ * Grundlage für den Online-Spielzeit-Abgleich (z. B. Epic).
+ */
+export function listPlatformPlaytimes(
+  platform: string
+): { id: number; platformId: string; importedSec: number; sessionSec: number }[] {
+  return getDatabase()
+    .prepare(
+      `
+      SELECT g.id, g.platform_id AS platformId, g.imported_playtime_sec AS importedSec,
+        COALESCE((SELECT SUM(s.duration_sec) FROM play_sessions s
+                  WHERE s.game_id = g.id AND s.duration_sec IS NOT NULL), 0) AS sessionSec
+      FROM games g
+      WHERE g.platform = ? AND g.kind = 'game'
+    `
+    )
+    .all(platform) as { id: number; platformId: string; importedSec: number; sessionSec: number }[]
+}
+
 // ---------------------------------------------------------------------------
 //  Phase 4: World-of-Tanks-Mods
 // ---------------------------------------------------------------------------
