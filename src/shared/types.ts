@@ -135,3 +135,45 @@ export interface EpicSyncResult {
   updatedGames: number // wie viele Spiele eine neue Spielzeit bekommen haben
   error?: string
 }
+
+// --- Shops: Plattform-Details & Angebote ---
+
+/** Ein Gratisspiel aus dem Epic Store (aktuell oder angekündigt). */
+export interface EpicFreeGame {
+  title: string
+  status: 'gratis' | 'demnaechst'
+  startDate: number | null // Unix-Sekunden
+  endDate: number | null
+  originalPrice: string | null // formatiert, z. B. "17,99 €"
+  coverUrl: string | null // Hochformat (für die Shop-Seite)
+  wideCoverUrl: string | null // Querformat (für die Startseite)
+  storeUrl: string | null
+}
+
+/** Ein Spiel aus der kompletten Epic-Bibliothek (auch nicht installiert). */
+export interface EpicLibraryGame {
+  title: string
+  appName: string // Epics interne ID (== platformId installierter Spiele)
+  installed: boolean
+  playtimeSec: number // offizielle Epic-Spielzeit
+  coverUrl: string | null
+}
+
+/** Ergebnis des Epic-Bibliotheks-Abrufs. */
+export interface EpicLibraryResult {
+  ok: boolean
+  games: EpicLibraryGame[]
+  error?: string
+}
+
+/** Ein Steam-Angebot (aktueller Sale). */
+export interface SteamOffer {
+  appId: number
+  name: string
+  discountPercent: number
+  originalPriceCents: number | null
+  finalPriceCents: number | null
+  currency: string
+  coverUrl: string | null // breites Header-Bild
+  storeUrl: string
+}

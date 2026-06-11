@@ -8,6 +8,25 @@
   --ok: #4ade80;
   --error: #f87171;
   --border: #262b39;
+  --sidebar-bg: #0c0e14;
+  --scroll: #2c3346;
+  --scroll-hover: #3b455c;
+}
+
+/* Hell-Modus: dieselben Variablen, helle Werte. Umschalten in den Einstellungen. */
+:root[data-theme='light'] {
+  --bg: #eef0f5;
+  --panel: #ffffff;
+  --panel-2: #e4e8f1;
+  --text: #1d2433;
+  --muted: #5d6678;
+  --accent: #3b5bdb;
+  --ok: #15803d;
+  --error: #dc2626;
+  --border: #d4d9e4;
+  --sidebar-bg: #e3e7ef;
+  --scroll: #c0c8d8;
+  --scroll-hover: #a7b1c6;
 }
 
 * {
@@ -25,7 +44,7 @@ body {
 /* ---- Dezente, dunkle Scrollbar statt Chromiums weißer Standard-Leiste ---- */
 * {
   scrollbar-width: thin; /* Firefox/Chromium-Fallback */
-  scrollbar-color: #2c3346 transparent;
+  scrollbar-color: var(--scroll) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -38,14 +57,14 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #2c3346;
+  background: var(--scroll);
   border-radius: 10px;
   /* der Rand in Hintergrundfarbe lässt den Griff schlanker "schweben" */
   border: 3px solid var(--bg);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b455c;
+  background: var(--scroll-hover);
 }
 
 ::-webkit-scrollbar-corner {
@@ -59,20 +78,45 @@ body {
   overflow: hidden;
 }
 
+/* Schmaler Balken am Rand; beim Drüberfahren klappt er ÜBER den Inhalt auf
+   (fixiert + Überbreite), damit nichts hin- und herspringt. */
 .sidebar {
-  flex: 0 0 210px;
-  background: #0c0e14;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 100;
+  width: 62px;
+  background: var(--sidebar-bg);
   border-right: 1px solid var(--border);
-  padding: 18px 12px;
+  padding: 18px 10px;
   display: flex;
   flex-direction: column;
   gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: width 0.16s ease, box-shadow 0.16s ease;
+}
+
+.sidebar:hover {
+  width: 216px;
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.35);
+}
+
+/* Beschriftungen erscheinen erst im ausgeklappten Zustand. */
+.nav-label {
+  opacity: 0;
+  transition: opacity 0.14s ease;
+}
+
+.sidebar:hover .nav-label {
+  opacity: 1;
 }
 
 .sidebar-brand {
   font-size: 18px;
   font-weight: 700;
-  padding: 8px 12px 18px;
+  padding: 8px 9px 18px;
   background: transparent;
   border: none;
   color: var(--text);
@@ -99,6 +143,7 @@ body {
   padding: 11px 12px;
   border-radius: 9px;
   cursor: pointer;
+  flex: none;
   transition: background 0.12s, color 0.12s;
 }
 
@@ -112,8 +157,14 @@ body {
   color: var(--text);
 }
 
+/* Einstellungen sitzt unten, direkt über der Versions-Fußzeile. */
+.nav-item.nav-bottom {
+  margin-top: auto;
+}
+
 .nav-icon {
   font-size: 16px;
+  flex: none;
 }
 
 .shell-content {
@@ -121,6 +172,7 @@ body {
   min-width: 0;
   height: 100vh;
   overflow-y: auto;
+  margin-left: 62px; /* Platz für den eingeklappten Balken */
 }
 
 .app {
@@ -184,6 +236,10 @@ body {
 .content {
   padding: 22px 24px 40px;
   flex: 1;
+  /* Auf großen/Vollbild-Fenstern: Inhalt mittig statt links angeklebt. */
+  width: 100%;
+  max-width: 1500px;
+  margin: 0 auto;
 }
 
 .banner {
@@ -895,10 +951,9 @@ body {
 /* ---- Startseite ---- */
 .stat-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
   margin-bottom: 30px;
-  max-width: 1100px;
 }
 
 .stat-card {
@@ -946,25 +1001,44 @@ body {
 }
 
 .home-grid {
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  max-width: 1100px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 185px));
 }
 
-.play-overlay {
+/* Quadratischer Start-Knopf in der Bildmitte (nur er startet das Spiel —
+   der Rest der Kachel öffnet die Detailansicht). */
+.play-btn {
   position: absolute;
-  inset: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.9);
+  width: 58px;
+  height: 58px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 34px;
+  font-size: 22px;
   color: #fff;
-  background: rgba(15, 17, 23, 0.55);
+  background: rgba(12, 14, 20, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 14px;
+  cursor: pointer;
   opacity: 0;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease, background 0.15s ease;
 }
 
-.tile:hover .play-overlay {
+.tile:hover .play-btn {
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.play-btn:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+/* In den seitlich scrollbaren Reihen haben Spiel-Kacheln eine feste Breite. */
+.offer-row .home-tile {
+  flex: 0 0 168px;
 }
 
 /* ---- Mods: Spielauswahl ---- */
@@ -1083,8 +1157,8 @@ body {
 
 /* ---- Sidebar-Fußzeile: App-Version / App-Update bereit ---- */
 .sidebar-footer {
-  margin-top: auto;
   padding: 10px 12px 4px;
+  min-height: 26px;
 }
 
 .app-version {
@@ -1103,6 +1177,8 @@ body {
   font-weight: 600;
   color: #ffd27a;
   cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
   transition: background 0.12s ease;
 }
 
@@ -1277,4 +1353,276 @@ body {
   font-size: 12.5px;
   color: var(--muted);
   line-height: 1.5;
+}
+
+/* ---- Shops: Angebote & Bibliothek ---- */
+.offer-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.offer-grid.wide {
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+}
+
+.offer-card {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text);
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.offer-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Feste Bildhöhen: egal welches Format das Bild hat, die Karte bleibt gleich
+   groß — das Bild füllt die Fläche und wird notfalls beschnitten. */
+.offer-cover {
+  position: relative;
+  height: 115px;
+  overflow: hidden;
+  background: var(--panel-2);
+  flex: none;
+}
+
+.offer-cover.tall {
+  height: 210px;
+}
+
+.offer-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.offer-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.offer-badge.free {
+  background: #2ecc71;
+  color: #06220f;
+}
+
+.offer-badge.soon {
+  background: rgba(15, 17, 23, 0.85);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.offer-badge.discount {
+  background: #2ecc71;
+  color: #06220f;
+}
+
+.offer-info {
+  padding: 10px 12px;
+}
+
+.offer-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.offer-meta {
+  margin-top: 3px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.offer-meta b {
+  color: #7dd87d;
+}
+
+.shop-library-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 6px;
+}
+
+.shop-library-head .section-title {
+  margin-bottom: 0;
+}
+
+.shop-filter {
+  flex: 0 1 260px;
+  min-width: 160px;
+}
+
+.shop-library {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 760px;
+}
+
+.shop-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 8px 14px 8px 8px;
+}
+
+.shop-row-cover {
+  width: 42px;
+  height: 56px;
+  border-radius: 7px;
+  object-fit: cover;
+  background: var(--panel-2);
+  flex: 0 0 42px;
+}
+
+.shop-row-cover.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.shop-row-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.shop-row-title {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shop-row-meta {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.shop-installed {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #7dd87d;
+  border: 1px solid rgba(125, 216, 125, 0.45);
+  border-radius: 999px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+
+.home-offers-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.home-offers-head .section-title {
+  margin-bottom: 12px;
+}
+
+/* Seitlich scrollbare Angebots-Reihe (Startseite) */
+.offer-row {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+  margin-bottom: 8px;
+}
+
+.offer-row .offer-card {
+  flex: 0 0 auto;
+}
+
+.offer-card.epic-card {
+  width: 158px;
+}
+
+.offer-card.steam-card {
+  width: 246px;
+}
+
+.offer-row .offer-meta b {
+  color: #7dd87d;
+}
+
+/* ---- Einstellungen ---- */
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 18px;
+  max-width: 720px;
+  text-align: left;
+  color: var(--text);
+}
+
+.settings-row.clickable {
+  cursor: pointer;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.settings-row.clickable:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.settings-row-icon {
+  font-size: 22px;
+  flex: none;
+}
+
+.settings-row-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.settings-row-title {
+  font-size: 14.5px;
+  font-weight: 700;
+}
+
+.settings-row-desc {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.settings-row-arrow {
+  color: var(--muted);
+  font-size: 16px;
+  flex: none;
 }

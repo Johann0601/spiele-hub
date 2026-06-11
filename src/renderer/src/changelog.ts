@@ -11,6 +11,19 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.3.0',
+    date: '2026-06-11',
+    title: 'Shops, Angebote & neues Design',
+    changes: [
+      'Neuer Bereich „Shops": Epic-Gratisspiele der Woche, deine komplette Epic-Bibliothek (auch nicht installierte Spiele, mit offizieller Spielzeit) und die aktuellen Steam-Angebote.',
+      'Startseite zeigt jetzt Top-Angebote: „Gratis bei Epic" und „Steam-Angebote" als seitlich scrollbare Reihen.',
+      'Schnellauswahl „Weiter spielen": scrollbare Reihe statt Umbruch; der ▶-Knopf in der Bildmitte startet das Spiel, ein Klick daneben öffnet die Detailansicht.',
+      'Die Seitenleiste ist jetzt ein schmaler Balken und klappt beim Drüberfahren aus.',
+      'Neuer Einstellungen-Bereich (unten in der Leiste): Konten, System/Treiber und Changelog sind dorthin umgezogen — dazu ein Schalter für den Hell-Modus.',
+      'Layout im Vollbild verbessert: Inhalt zentriert, Bereiche nutzen die Breite.'
+    ]
+  },
+  {
     version: '0.2.0',
     date: '2026-06-11',
     title: 'Epic-Konto verbinden',

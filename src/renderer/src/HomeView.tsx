@@ -1,13 +1,21 @@
-import { useEffect, useState } from 'react'
-import type { GameCard, NvidiaUpdate, WotStatus } from '@shared/types'
+import { useEffect, useState, type ReactNode } from 'react'
+import type { EpicFreeGame, GameCard, NvidiaUpdate, SteamOffer, WotStatus } from '@shared/types'
 import type { View } from './App'
 import { formatLastPlayed, formatPlaytime } from './format'
 
-function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Element {
+function HomeView({
+  onNavigate,
+  onOpenGame
+}: {
+  onNavigate: (v: View) => void
+  onOpenGame: (gameId: number) => void
+}): JSX.Element {
   const [games, setGames] = useState<GameCard[]>([])
   const [wot, setWot] = useState<WotStatus | null>(null)
   const [mcCount, setMcCount] = useState<number | null>(null)
   const [nvidia, setNvidia] = useState<NvidiaUpdate | 'loading' | null>('loading')
+  const [freeGames, setFreeGames] = useState<EpicFreeGame[]>([])
+  const [steamOffers, setSteamOffers] = useState<SteamOffer[]>([])
 
   useEffect(() => {
     // Sofort den letzten Stand zeigen, parallel im Hintergrund frisch scannen.
@@ -22,6 +30,15 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
     window.api
       .getMcProfiles()
       .then((p) => setMcCount(p.length))
+      .catch(() => {})
+    // Beste Angebote für die Startseite (beides öffentliche Endpunkte).
+    window.api
+      .getEpicFreeGames()
+      .then((g) => setFreeGames(g.filter((f) => f.status === 'gratis')))
+      .catch(() => {})
+    window.api
+      .getSteamOffers()
+      .then((o) => setSteamOffers(o.slice(0, 12)))
       .catch(() => {})
     // Nvidia-Treiber-Status für die Treiber-Karte.
     ;(async () => {
@@ -42,7 +59,7 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
   const recent = playable
     .filter((g) => g.lastPlayed)
     .sort((a, b) => (b.lastPlayed ?? 0) - (a.lastPlayed ?? 0))
-    .slice(0, 6)
+    .slice(0, 10)
 
   const wotRestore = wot?.ok ? wot.needsRestore : 0
   const wotActive = wot?.ok ? wot.mods.filter((m) => m.enabled && m.installed).length : null
@@ -71,7 +88,7 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
             className={`stat-card ${pendingUpdates > 0 ? 'attention' : ''}`}
             onClick={() => onNavigate('updates')}
           >
-            <span className="stat-card-icon">⬆</span>
+            <span className="stat-card-icon">⬆️</span>
             <span className="stat-card-title">Updates</span>
             <span className="stat-card-info">
               {pendingUpdates > 0 ? `${pendingUpdates} ausstehend` : 'alles aktuell ✓'}
@@ -98,7 +115,7 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
 
           <button
             className={`stat-card ${nvidia !== 'loading' && nvidia?.updateAvailable ? 'attention' : ''}`}
-            onClick={() => onNavigate('system')}
+            onClick={() => onNavigate('settings-system')}
           >
             <span className="stat-card-icon">🖥️</span>
             <span className="stat-card-title">System / Treiber</span>
@@ -118,11 +135,90 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
         {recent.length > 0 && (
           <>
             <h2 className="section-title">Weiter spielen</h2>
-            <div className="grid home-grid">
+            <OfferRow>
               {recent.map((g) => (
-                <HomeTile key={g.id} game={g} />
+                <HomeTile key={g.id} game={g} onOpen={() => onOpenGame(g.id)} />
               ))}
+            </OfferRow>
+          </>
+        )}
+
+        {/* Gratis bei Epic — eigene Reihe, hochkant, seitlich scrollbar */}
+        {freeGames.length > 0 && (
+          <>
+            <div className="home-offers-head">
+              <h2 className="section-title" style={{ marginTop: 26 }}>
+                Gratis bei Epic
+              </h2>
+              <button className="btn small" onClick={() => onNavigate('shops')}>
+                Alle ansehen →
+              </button>
             </div>
+            <OfferRow>
+              {freeGames.map((g) => (
+                <button
+                  key={g.title}
+                  className="offer-card epic-card"
+                  title="Im Epic Store ansehen"
+                  onClick={() => g.storeUrl && window.open(g.storeUrl, '_blank')}
+                >
+                  <div className="offer-cover tall">
+                    {g.coverUrl ? <img src={g.coverUrl} alt={g.title} loading="lazy" /> : <span />}
+                    <span className="offer-badge free">GRATIS</span>
+                  </div>
+                  <div className="offer-info">
+                    <div className="offer-name">{g.title}</div>
+                    <div className="offer-meta">
+                      {g.originalPrice ? `statt ${g.originalPrice}` : 'kostenlos'}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </OfferRow>
+          </>
+        )}
+
+        {/* Steam-Angebote — eigene Reihe, Querformat, seitlich scrollbar */}
+        {steamOffers.length > 0 && (
+          <>
+            <div className="home-offers-head">
+              <h2 className="section-title" style={{ marginTop: 26 }}>
+                Steam-Angebote
+              </h2>
+              <button className="btn small" onClick={() => onNavigate('shops')}>
+                Alle ansehen →
+              </button>
+            </div>
+            <OfferRow>
+              {steamOffers.map((o) => (
+                <button
+                  key={o.appId}
+                  className="offer-card steam-card"
+                  title="Im Steam Store ansehen"
+                  onClick={() => window.open(o.storeUrl, '_blank')}
+                >
+                  <div className="offer-cover">
+                    {o.coverUrl ? <img src={o.coverUrl} alt={o.name} loading="lazy" /> : <span />}
+                    <span className="offer-badge discount">-{o.discountPercent}%</span>
+                  </div>
+                  <div className="offer-info">
+                    <div className="offer-name">{o.name}</div>
+                    <div className="offer-meta">
+                      <s>
+                        {o.originalPriceCents !== null
+                          ? `${(o.originalPriceCents / 100).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`
+                          : ''}
+                      </s>{' '}
+                      <b>
+                        {o.finalPriceCents !== null
+                          ? `${(o.finalPriceCents / 100).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`
+                          : ''}
+                      </b>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </OfferRow>
           </>
         )}
 
@@ -156,17 +252,44 @@ function HomeView({ onNavigate }: { onNavigate: (v: View) => void }): JSX.Elemen
   )
 }
 
-function HomeTile({ game }: { game: GameCard }): JSX.Element {
+/** Seitlich scrollbare Reihe; das Mausrad scrollt horizontal. */
+function OfferRow({ children }: { children: ReactNode }): JSX.Element {
+  return (
+    <div
+      className="offer-row"
+      onWheel={(e) => {
+        if (e.deltaY !== 0 && e.currentTarget.scrollWidth > e.currentTarget.clientWidth) {
+          e.currentTarget.scrollLeft += e.deltaY
+        }
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+// Kachel der Schnellauswahl: Klick aufs Bild = Detailansicht öffnen,
+// nur der quadratische ▶-Knopf in der Mitte startet das Spiel direkt.
+function HomeTile({ game, onOpen }: { game: GameCard; onOpen: () => void }): JSX.Element {
   const [imgFailed, setImgFailed] = useState(false)
   return (
-    <div className="tile" title={`${game.name} starten`} onClick={() => window.api.launchGame(game.id)}>
+    <div className="tile home-tile" title={game.name} onClick={onOpen}>
       <div className="cover">
         {game.coverUrl && !imgFailed ? (
           <img src={game.coverUrl} alt={game.name} onError={() => setImgFailed(true)} />
         ) : (
           <div className="cover-fallback">{game.name.charAt(0).toUpperCase()}</div>
         )}
-        <span className="play-overlay">▶</span>
+        <button
+          className="play-btn"
+          title={`${game.name} starten`}
+          onClick={(e) => {
+            e.stopPropagation() // nicht zusätzlich die Detailansicht öffnen
+            window.api.launchGame(game.id)
+          }}
+        >
+          ▶
+        </button>
         <span className="badge">{formatPlaytime(game.totalPlaytimeSec)}</span>
       </div>
       <div className="tile-info">

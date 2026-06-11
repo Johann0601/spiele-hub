@@ -3,12 +3,15 @@ import { electronAPI } from '@electron-toolkit/preload'
 import type {
   DeviceInfo,
   EpicAccountStatus,
+  EpicFreeGame,
+  EpicLibraryResult,
   EpicSyncResult,
   GameCard,
   NvidiaUpdate,
   RunningGame,
   McProfile,
   ScanResult,
+  SteamOffer,
   UpdateEvent,
   WotStatus
 } from '@shared/types'
@@ -96,7 +99,12 @@ const api = {
   ): Promise<{ ok: true; status: EpicAccountStatus } | { ok: false; error: string }> =>
     ipcRenderer.invoke('epic:login', code),
   epicLogout: (): Promise<EpicAccountStatus> => ipcRenderer.invoke('epic:logout'),
-  syncEpicPlaytime: (): Promise<EpicSyncResult> => ipcRenderer.invoke('epic:sync-playtime')
+  syncEpicPlaytime: (): Promise<EpicSyncResult> => ipcRenderer.invoke('epic:sync-playtime'),
+
+  /** Shops: Gratisspiele, komplette Epic-Bibliothek, Steam-Angebote. */
+  getEpicFreeGames: (): Promise<EpicFreeGame[]> => ipcRenderer.invoke('epic:free-games'),
+  getEpicLibrary: (): Promise<EpicLibraryResult> => ipcRenderer.invoke('epic:library'),
+  getSteamOffers: (): Promise<SteamOffer[]> => ipcRenderer.invoke('steam:offers')
 }
 
 if (process.contextIsolated) {

@@ -30,7 +30,7 @@ function formatBytes(bytes: number): string {
   return `${Math.round(gib)} GB`
 }
 
-function SystemView(): JSX.Element {
+function SystemView({ onBack }: { onBack?: () => void }): JSX.Element {
   const [devices, setDevices] = useState<DeviceInfo[]>([])
   const [loading, setLoading] = useState(true)
   const [collapsed, setCollapsed] = useState<Set<string>>(loadCollapsed)
@@ -99,6 +99,11 @@ function SystemView(): JSX.Element {
   return (
     <div className="app">
       <header className="topbar">
+        {onBack && (
+          <button className="btn" onClick={onBack}>
+            ← Zurück
+          </button>
+        )}
         <div className="brand">
           <h1>🖥️ System / Treiber</h1>
           <span className="subtitle">{devices.length} Geräte</span>

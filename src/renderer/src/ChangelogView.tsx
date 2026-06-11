@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { CHANGELOG } from './changelog'
 
 // Zeigt die Versions-Historie der App selbst (nicht der Spiele!).
-function ChangelogView(): JSX.Element {
+function ChangelogView({ onBack }: { onBack?: () => void }): JSX.Element {
   const [appVersion, setAppVersion] = useState('')
 
   useEffect(() => {
@@ -12,6 +12,11 @@ function ChangelogView(): JSX.Element {
   return (
     <div className="app">
       <header className="topbar">
+        {onBack && (
+          <button className="btn" onClick={onBack}>
+            ← Zurück
+          </button>
+        )}
         <div className="brand">
           <h1>📜 Changelog</h1>
           <span className="subtitle">Was sich in der App geändert hat</span>

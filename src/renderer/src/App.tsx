@@ -1,25 +1,49 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GameCard, RunningGame } from '@shared/types'
 import { formatLastPlayed, formatPlaytime } from './format'
-import AccountsView from './AccountsView'
-import ChangelogView from './ChangelogView'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
-import SystemView from './SystemView'
+import SettingsView from './SettingsView'
+import ShopsView from './ShopsView'
 import UpdatesView from './UpdatesView'
 
-export type View = 'home' | 'games' | 'updates' | 'mods' | 'system' | 'accounts' | 'changelog'
+export type View =
+  | 'home'
+  | 'games'
+  | 'updates'
+  | 'mods'
+  | 'shops'
+  | 'settings'
+  | 'settings-accounts'
+  | 'settings-system'
+  | 'settings-changelog'
 
-// Die App-Hülle: feste Seitenleiste links, daneben die aktive Ansicht.
+export type Theme = 'dark' | 'light'
+
+// Die App-Hülle: schmale Seitenleiste links (klappt beim Drüberfahren aus),
+// daneben die aktive Ansicht.
 function App(): JSX.Element {
   const [view, setView] = useState<View>('home') // Startseite ist die erste Ansicht
+  // Von der Startseite aus kann ein Spiel direkt in der Detailansicht geöffnet werden.
+  const [gameToShow, setGameToShow] = useState<number | null>(null)
   const [appVersion, setAppVersion] = useState('')
   const [updateVersion, setUpdateVersion] = useState<string | null>(null) // fertig geladenes App-Update
+  const [theme, setTheme] = useState<Theme>(() =>
+    localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
+  )
 
   useEffect(() => {
     window.api.getAppVersion().then(setAppVersion).catch(() => {})
     return window.api.onAppUpdateReady(setUpdateVersion)
   }, [])
+
+  // Theme als Attribut ans Wurzel-Element — das CSS schaltet darüber um.
+  useEffect(() => {
+    document.documentElement.dataset.theme = theme
+    localStorage.setItem('theme', theme)
+  }, [theme])
+
+  const inSettings = view.startsWith('settings')
 
   return (
     <div className="shell">
@@ -29,43 +53,51 @@ function App(): JSX.Element {
           onClick={() => setView('home')}
           title="Zur Startseite"
         >
-          🎮 Hub
+          🎮<span className="nav-label"> Hub</span>
         </button>
         <button
           className={`nav-item ${view === 'games' ? 'active' : ''}`}
-          onClick={() => setView('games')}
+          onClick={() => {
+            setGameToShow(null) // normaler Einstieg: Übersicht, keine Detailansicht
+            setView('games')
+          }}
+          title="Spiele"
         >
-          <span className="nav-icon">🎮</span> Spiele
+          <span className="nav-icon">🎮</span>
+          <span className="nav-label">Spiele</span>
         </button>
         <button
           className={`nav-item ${view === 'updates' ? 'active' : ''}`}
           onClick={() => setView('updates')}
+          title="Updates"
         >
-          <span className="nav-icon">⬆</span> Updates
+          <span className="nav-icon">⬆️</span>
+          <span className="nav-label">Updates</span>
         </button>
         <button
           className={`nav-item ${view === 'mods' ? 'active' : ''}`}
           onClick={() => setView('mods')}
+          title="Mods"
         >
-          <span className="nav-icon">🧩</span> Mods
+          <span className="nav-icon">🧩</span>
+          <span className="nav-label">Mods</span>
         </button>
         <button
-          className={`nav-item ${view === 'system' ? 'active' : ''}`}
-          onClick={() => setView('system')}
+          className={`nav-item ${view === 'shops' ? 'active' : ''}`}
+          onClick={() => setView('shops')}
+          title="Shops"
         >
-          <span className="nav-icon">🖥️</span> System / Treiber
+          <span className="nav-icon">🛒</span>
+          <span className="nav-label">Shops</span>
         </button>
+
         <button
-          className={`nav-item ${view === 'accounts' ? 'active' : ''}`}
-          onClick={() => setView('accounts')}
+          className={`nav-item nav-bottom ${inSettings ? 'active' : ''}`}
+          onClick={() => setView('settings')}
+          title="Einstellungen"
         >
-          <span className="nav-icon">👤</span> Konten
-        </button>
-        <button
-          className={`nav-item ${view === 'changelog' ? 'active' : ''}`}
-          onClick={() => setView('changelog')}
-        >
-          <span className="nav-icon">📜</span> Changelog
+          <span className="nav-icon">⚙️</span>
+          <span className="nav-label">Einstellungen</span>
         </button>
         <div className="sidebar-footer">
           {updateVersion ? (
@@ -74,30 +106,45 @@ function App(): JSX.Element {
               title="Das Update ist schon heruntergeladen — die App startet kurz neu."
               onClick={() => window.api.installAppUpdate()}
             >
-              ⬆ Update {updateVersion} bereit — neu starten
+              ⬆️<span className="nav-label"> Update {updateVersion} — neu starten</span>
             </button>
           ) : (
-            appVersion && <span className="app-version">Version {appVersion}</span>
+            appVersion && (
+              <span className="app-version nav-label">Version {appVersion}</span>
+            )
           )}
         </div>
       </nav>
       <div className="shell-content">
-        {view === 'home' && <HomeView onNavigate={setView} />}
-        {view === 'games' && <GamesView />}
+        {view === 'home' && (
+          <HomeView
+            onNavigate={setView}
+            onOpenGame={(id) => {
+              setGameToShow(id)
+              setView('games')
+            }}
+          />
+        )}
+        {view === 'games' && <GamesView initialSelectedId={gameToShow} />}
         {view === 'updates' && <UpdatesView />}
         {view === 'mods' && <ModsView />}
-        {view === 'system' && <SystemView />}
-        {view === 'accounts' && <AccountsView />}
-        {view === 'changelog' && <ChangelogView />}
+        {view === 'shops' && <ShopsView />}
+        {inSettings && (
+          <SettingsView view={view} onNavigate={setView} theme={theme} onThemeChange={setTheme} />
+        )}
       </div>
     </div>
   )
 }
 
-function GamesView(): JSX.Element {
+function GamesView({
+  initialSelectedId = null
+}: {
+  initialSelectedId?: number | null
+}): JSX.Element {
   const [games, setGames] = useState<GameCard[]>([])
   const [running, setRunning] = useState<Map<number, number>>(new Map()) // gameId -> startedAt
-  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(initialSelectedId)
   const [scanning, setScanning] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000))

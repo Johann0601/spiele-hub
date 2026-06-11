@@ -29,7 +29,7 @@ function UpdatesView(): JSX.Element {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <h1>⬆ Updates</h1>
+          <h1>⬆️ Updates</h1>
           <span className="subtitle">
             {pending.length === 0 ? 'alles aktuell' : `${pending.length} ausstehend`}
           </span>

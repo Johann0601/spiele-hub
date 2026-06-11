@@ -32,6 +32,9 @@ import {
   epicLogout,
   syncEpicPlaytime
 } from './services/epic/account'
+import { getEpicFreeGames } from './services/epic/store'
+import { getEpicLibrary } from './services/epic/library'
+import { getSteamOffers } from './services/steam/offers'
 
 // Referenz aufs Hauptfenster, damit der Wächter Live-Updates schicken kann.
 let mainWindow: BrowserWindow | null = null
@@ -235,6 +238,12 @@ app.whenReady().then(() => {
     }
     return result
   })
+
+  // Shops: Epic-Gratisspiele (ohne Login), komplette Epic-Bibliothek
+  // (mit Konto) und aktuelle Steam-Angebote (ohne Login).
+  ipcMain.handle('epic:free-games', () => getEpicFreeGames())
+  ipcMain.handle('epic:library', () => getEpicLibrary())
+  ipcMain.handle('steam:offers', () => getSteamOffers())
 
   // Beim Start (falls verbunden) die Epic-Spielzeiten still abgleichen.
   if (epicAccountStatus().connected) {

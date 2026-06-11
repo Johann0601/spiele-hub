@@ -111,7 +111,7 @@ function rememberSession(t: TokenResponse): void {
 }
 
 /** Gültiges Zugriffs-Token liefern; bei Bedarf per Refresh-Token erneuern. */
-async function getAccessToken(): Promise<{ token: string; accountId: string }> {
+export async function getAccessToken(): Promise<{ token: string; accountId: string }> {
   const auth = loadAuth()
   if (!auth) throw new Error('Kein Epic-Konto verbunden.')
   if (accessToken && Date.now() / 1000 < accessTokenExpiresAt) {

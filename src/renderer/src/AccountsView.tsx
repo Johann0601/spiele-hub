@@ -3,10 +3,15 @@ import type { EpicAccountStatus } from '@shared/types'
 
 // Konten-Bereich: externe Konten mit der App VERBINDEN (kein eigenes
 // App-Login). Aktuell: Epic Games — lesend für Spielzeiten & Bibliothek.
-function AccountsView(): JSX.Element {
+function AccountsView({ onBack }: { onBack?: () => void }): JSX.Element {
   return (
     <div className="app">
       <header className="topbar">
+        {onBack && (
+          <button className="btn" onClick={onBack}>
+            ← Zurück
+          </button>
+        )}
         <div className="brand">
           <h1>👤 Konten</h1>
           <span className="subtitle">Externe Konten mit der App verbinden</span>
