@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import type { EpicFreeGame, GameCard, NvidiaUpdate, SteamOffer, WotStatus } from '@shared/types'
 import type { View } from './App'
 import { formatLastPlayed, formatPlaytime } from './format'
@@ -252,17 +252,27 @@ function HomeView({
   )
 }
 
-/** Seitlich scrollbare Reihe; das Mausrad scrollt horizontal. */
+/** Seitlich scrollbare Reihe: Das Mausrad scrollt NUR die Reihe (horizontal),
+ *  die Seite selbst bleibt stehen. Dafür muss der Wheel-Listener von Hand mit
+ *  passive:false registriert werden — nur so darf er preventDefault aufrufen. */
 function OfferRow({ children }: { children: ReactNode }): JSX.Element {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onWheel = (e: WheelEvent): void => {
+      if (e.deltaY !== 0 && el.scrollWidth > el.clientWidth) {
+        e.preventDefault() // Seite nicht vertikal scrollen
+        el.scrollLeft += e.deltaY
+      }
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
+
   return (
-    <div
-      className="offer-row"
-      onWheel={(e) => {
-        if (e.deltaY !== 0 && e.currentTarget.scrollWidth > e.currentTarget.clientWidth) {
-          e.currentTarget.scrollLeft += e.deltaY
-        }
-      }}
-    >
+    <div className="offer-row" ref={ref}>
       {children}
     </div>
   )

@@ -11,6 +11,14 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.3.1',
+    date: '2026-06-11',
+    title: 'Scroll-Feinschliff',
+    changes: [
+      'Mausrad über einer seitlich scrollbaren Reihe bewegt jetzt nur noch die Reihe — die Seite scrollt dabei nicht mehr mit.'
+    ]
+  },
+  {
     version: '0.3.0',
     date: '2026-06-11',
     title: 'Shops, Angebote & neues Design',
