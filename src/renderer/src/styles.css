@@ -172,6 +172,23 @@ body {
 .nav-icon {
   font-size: 16px;
   flex: none;
+  position: relative;
+}
+
+/* Zähler-Badge an der Benachrichtigungs-Glocke (auch eingeklappt sichtbar). */
+.nav-badge {
+  position: absolute;
+  top: -7px;
+  right: -10px;
+  background: #ff9f43;
+  color: #221503;
+  font-size: 10px;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 1px 5px;
+  min-width: 17px;
+  text-align: center;
+  line-height: 1.45;
 }
 
 .shell-content {
@@ -1177,36 +1194,10 @@ body {
   color: var(--muted);
 }
 
-.update-ready-btn {
-  width: 100%;
-  /* eingeklappt: kompaktes ⬆️-Kästchen, mittig */
-  text-align: center;
-  background: rgba(255, 184, 77, 0.1);
-  border: 1px solid rgba(255, 184, 77, 0.6);
-  border-radius: 9px;
-  padding: 8px 4px;
-  font-size: 12px;
-  font-weight: 600;
-  color: #ffd27a;
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: background 0.12s ease;
-}
-
-/* ausgeklappt: linksbündig, Text darf auf zwei Zeilen umbrechen */
-.sidebar:hover .update-ready-btn {
-  text-align: left;
-  padding: 9px 10px;
-}
-
-.sidebar:hover .update-ready-btn .nav-label {
-  max-width: none;
-  white-space: normal;
-}
-
-.update-ready-btn:hover {
-  background: rgba(255, 184, 77, 0.2);
+/* Hervorgehobene Benachrichtigung (Handlungsbedarf). */
+.settings-row.notif-attention {
+  border-color: rgba(255, 184, 77, 0.55);
+  background: rgba(255, 184, 77, 0.06);
 }
 
 /* ---- Changelog der App ---- */

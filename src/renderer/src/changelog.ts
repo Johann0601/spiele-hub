@@ -11,6 +11,16 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.4.0',
+    date: '2026-06-12',
+    title: 'Benachrichtigungen',
+    changes: [
+      'Neue Glocke unten in der Seitenleiste: bündelt alles rund um Updates an einem Ort — App-Updates, ausstehende Steam-Spiel-Updates und Nvidia-Treiber-Updates.',
+      'Zähler-Badge an der Glocke zeigt auf einen Blick, wie viel ansteht (auch bei eingeklappter Leiste).',
+      'Der orange Update-Knopf unten links ist dafür in die Benachrichtigungen umgezogen („Jetzt neu starten").'
+    ]
+  },
+  {
     version: '0.3.2',
     date: '2026-06-11',
     title: 'Sidebar-Feinschliff',

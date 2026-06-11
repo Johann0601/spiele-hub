@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import type { GameCard, RunningGame } from '@shared/types'
+import type { GameCard, NvidiaUpdate, RunningGame } from '@shared/types'
 import { formatLastPlayed, formatPlaytime } from './format'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
+import NotificationsView from './NotificationsView'
 import SettingsView from './SettingsView'
 import ShopsView from './ShopsView'
 import UpdatesView from './UpdatesView'
@@ -13,6 +14,7 @@ export type View =
   | 'updates'
   | 'mods'
   | 'shops'
+  | 'notifications'
   | 'settings'
   | 'settings-accounts'
   | 'settings-system'
@@ -32,10 +34,39 @@ function App(): JSX.Element {
     localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
   )
 
+  // Daten für die Benachrichtigungs-Glocke: ausstehende Spiel-Updates
+  // und der Nvidia-Treiber-Status.
+  const [pendingGames, setPendingGames] = useState<GameCard[]>([])
+  const [nvidia, setNvidia] = useState<NvidiaUpdate | null>(null)
+
   useEffect(() => {
     window.api.getAppVersion().then(setAppVersion).catch(() => {})
     return window.api.onAppUpdateReady(setUpdateVersion)
   }, [])
+
+  useEffect(() => {
+    const loadPending = (): void => {
+      window.api
+        .listGames()
+        .then((g) => setPendingGames(g.filter((x) => x.kind === 'game' && x.updatePending)))
+        .catch(() => {})
+    }
+    loadPending()
+    const off = window.api.onGamesRefresh(loadPending) // nach jedem Hintergrund-Scan
+    ;(async () => {
+      try {
+        const devices = await window.api.getDevices()
+        const gpu = devices.find((d) => d.isNvidiaGpu)
+        if (gpu) setNvidia(await window.api.checkNvidiaUpdate(gpu.name, gpu.driverVersion))
+      } catch {
+        /* keine Treiber-Benachrichtigung */
+      }
+    })()
+    return off
+  }, [])
+
+  const notifCount =
+    (updateVersion ? 1 : 0) + pendingGames.length + (nvidia?.updateAvailable ? 1 : 0)
 
   // Theme als Attribut ans Wurzel-Element — das CSS schaltet darüber um.
   useEffect(() => {
@@ -92,7 +123,18 @@ function App(): JSX.Element {
         </button>
 
         <button
-          className={`nav-item nav-bottom ${inSettings ? 'active' : ''}`}
+          className={`nav-item nav-bottom ${view === 'notifications' ? 'active' : ''}`}
+          onClick={() => setView('notifications')}
+          title="Benachrichtigungen"
+        >
+          <span className="nav-icon">
+            🔔
+            {notifCount > 0 && <span className="nav-badge">{notifCount}</span>}
+          </span>
+          <span className="nav-label">Benachrichtigungen</span>
+        </button>
+        <button
+          className={`nav-item ${inSettings ? 'active' : ''}`}
           onClick={() => setView('settings')}
           title="Einstellungen"
         >
@@ -100,19 +142,7 @@ function App(): JSX.Element {
           <span className="nav-label">Einstellungen</span>
         </button>
         <div className="sidebar-footer">
-          {updateVersion ? (
-            <button
-              className="update-ready-btn"
-              title="Das Update ist schon heruntergeladen — die App startet kurz neu."
-              onClick={() => window.api.installAppUpdate()}
-            >
-              ⬆️<span className="nav-label"> Update {updateVersion} — neu starten</span>
-            </button>
-          ) : (
-            appVersion && (
-              <span className="app-version nav-label">Version {appVersion}</span>
-            )
-          )}
+          {appVersion && <span className="app-version nav-label">Version {appVersion}</span>}
         </div>
       </nav>
       <div className="shell-content">
@@ -129,6 +159,13 @@ function App(): JSX.Element {
         {view === 'updates' && <UpdatesView />}
         {view === 'mods' && <ModsView />}
         {view === 'shops' && <ShopsView />}
+        {view === 'notifications' && (
+          <NotificationsView
+            appUpdateVersion={updateVersion}
+            pendingGames={pendingGames}
+            nvidia={nvidia}
+          />
+        )}
         {inSettings && (
           <SettingsView view={view} onNavigate={setView} theme={theme} onThemeChange={setTheme} />
         )}
