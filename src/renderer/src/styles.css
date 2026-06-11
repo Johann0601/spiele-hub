@@ -103,13 +103,20 @@ body {
   box-shadow: 14px 0 34px rgba(0, 0, 0, 0.35);
 }
 
-/* Beschriftungen erscheinen erst im ausgeklappten Zustand. */
+/* Beschriftungen erscheinen erst im ausgeklappten Zustand — und nehmen
+   eingeklappt auch wirklich KEINEN Platz ein (max-width 0). */
 .nav-label {
+  display: inline-block;
+  max-width: 0;
   opacity: 0;
-  transition: opacity 0.14s ease;
+  overflow: hidden;
+  white-space: nowrap;
+  vertical-align: bottom;
+  transition: opacity 0.14s ease, max-width 0.16s ease;
 }
 
 .sidebar:hover .nav-label {
+  max-width: 170px;
   opacity: 1;
 }
 
@@ -1157,8 +1164,12 @@ body {
 
 /* ---- Sidebar-Fußzeile: App-Version / App-Update bereit ---- */
 .sidebar-footer {
-  padding: 10px 12px 4px;
+  padding: 10px 2px 4px;
   min-height: 26px;
+}
+
+.sidebar:hover .sidebar-footer {
+  padding: 10px 10px 4px;
 }
 
 .app-version {
@@ -1168,11 +1179,12 @@ body {
 
 .update-ready-btn {
   width: 100%;
-  text-align: left;
+  /* eingeklappt: kompaktes ⬆️-Kästchen, mittig */
+  text-align: center;
   background: rgba(255, 184, 77, 0.1);
   border: 1px solid rgba(255, 184, 77, 0.6);
   border-radius: 9px;
-  padding: 9px 10px;
+  padding: 8px 4px;
   font-size: 12px;
   font-weight: 600;
   color: #ffd27a;
@@ -1180,6 +1192,17 @@ body {
   white-space: nowrap;
   overflow: hidden;
   transition: background 0.12s ease;
+}
+
+/* ausgeklappt: linksbündig, Text darf auf zwei Zeilen umbrechen */
+.sidebar:hover .update-ready-btn {
+  text-align: left;
+  padding: 9px 10px;
+}
+
+.sidebar:hover .update-ready-btn .nav-label {
+  max-width: none;
+  white-space: normal;
 }
 
 .update-ready-btn:hover {

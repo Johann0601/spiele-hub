@@ -11,6 +11,14 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.3.2',
+    date: '2026-06-11',
+    title: 'Sidebar-Feinschliff',
+    changes: [
+      'Der Update-Hinweis unten links wird nicht mehr abgeschnitten: eingeklappt ein kompaktes ⬆️-Kästchen, ausgeklappt mit vollständigem Text.'
+    ]
+  },
+  {
     version: '0.3.1',
     date: '2026-06-11',
     title: 'Scroll-Feinschliff',
