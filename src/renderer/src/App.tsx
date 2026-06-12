@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { GameCard, NvidiaUpdate, RunningGame } from '@shared/types'
 import { formatLastPlayed, formatPlaytime } from './format'
 import { updateActionFor } from './updateAction'
+import GameDetailExtras from './GameDetailExtras'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
 import NotificationsView from './NotificationsView'
@@ -430,11 +431,12 @@ function GameDetail({
       </header>
 
       <main className="content detail">
-        <div className="detail-cover">
-          <Cover game={game} />
-        </div>
+        <div className="detail-top">
+          <div className="detail-cover">
+            <Cover game={game} />
+          </div>
 
-        <div className="detail-info">
+          <div className="detail-info">
           <h2>{game.name}</h2>
 
           <div className="stat-row">
@@ -510,10 +512,13 @@ function GameDetail({
             )}
           </div>
 
-          {notice && <div className="notice">{notice}</div>}
+            {notice && <div className="notice">{notice}</div>}
 
-          {game.installDir && <div className="install-path">{game.installDir}</div>}
+            {game.installDir && <div className="install-path">{game.installDir}</div>}
+          </div>
         </div>
+
+        <GameDetailExtras game={game} />
       </main>
     </div>
   )

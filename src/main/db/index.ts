@@ -277,6 +277,33 @@ export function getLaunchInfo(
   return row ?? null
 }
 
+/** Grunddaten eines Eintrags (für Detail-Abfragen wie Store-Infos/News/Erfolge). */
+export function getGameBasic(
+  id: number
+): { platform: Platform; platformId: string; name: string } | null {
+  const row = getDatabase()
+    .prepare('SELECT platform, platform_id AS platformId, name FROM games WHERE id = ?')
+    .get(id) as { platform: Platform; platformId: string; name: string } | undefined
+  return row ?? null
+}
+
+/**
+ * Spiele, deren Online-Cover nur ein Wikipedia-Logo ist — Kandidaten für ein
+ * Upgrade auf echte Box-Art, sobald ein SteamGridDB-Key hinterlegt wird.
+ */
+export function listGamesWithWikiCover(
+  platforms: string[]
+): { platform: string; platformId: string; name: string }[] {
+  const marks = platforms.map(() => '?').join(',')
+  return getDatabase()
+    .prepare(
+      `SELECT platform, platform_id AS platformId, name FROM games
+       WHERE kind = 'game' AND platform IN (${marks})
+         AND cover_url LIKE '%wikimedia.org%'`
+    )
+    .all(...platforms) as { platform: string; platformId: string; name: string }[]
+}
+
 /** Startet eine neue Sitzung (Spiel wurde als laufend erkannt). Gibt die Sitzungs-ID zurück. */
 export function startSession(gameId: number, startedAt: number): number {
   const info = getDatabase()

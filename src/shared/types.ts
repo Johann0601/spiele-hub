@@ -179,6 +179,66 @@ export interface EpicLibraryResult {
   error?: string
 }
 
+// --- Spiel-Detailseiten: Store-Infos, News & Erfolge ---
+
+/** Store-Infos zu einem Spiel (aus der öffentlichen Steam-Store-API, auf Deutsch). */
+export interface GameDetails {
+  ok: boolean
+  appId: number | null // zugeordnete Steam-AppID (auch für Nicht-Steam-Spiele per Namenssuche)
+  shortDescription: string | null
+  genres: string[] // z. B. ["Action", "Rollenspiel"]
+  developers: string[]
+  publishers: string[]
+  releaseDate: string | null // bereits formatiert, z. B. "10. Okt. 2023"
+  metacritic: number | null // Wertung 0–100 (falls vorhanden)
+  screenshots: string[] // https-URLs in voller Größe
+  storeUrl: string | null
+  error?: string
+}
+
+/** Eine News-/Patchnotes-Meldung zu einem Spiel. */
+export interface GameNewsItem {
+  title: string
+  url: string
+  date: number // Unix-Sekunden
+  feedLabel: string // Quelle, z. B. "Community-Ankündigungen"
+  excerpt: string // bereinigter Textanfang
+}
+
+/** Ein einzelner Steam-Erfolg mit Freischalt-Zustand des Nutzers. */
+export interface GameAchievement {
+  name: string
+  description: string
+  iconUrl: string // farbig (freigeschaltet)
+  iconGrayUrl: string // grau (gesperrt)
+  achieved: boolean
+  unlockTime: number | null // Unix-Sekunden
+  globalPercent: number | null // wie viele Spieler weltweit ihn haben (0–100)
+}
+
+/** Ergebnis der Erfolgs-Abfrage für ein Spiel. */
+export interface AchievementsResult {
+  ok: boolean
+  supported: boolean // false = Spiel hat keine Erfolge / kein Steam-Spiel
+  keyMissing?: boolean // true = es ist kein Steam-Web-API-Key hinterlegt
+  unlocked: number
+  total: number
+  list: GameAchievement[]
+  error?: string
+}
+
+/** Zustand des hinterlegten Steam-Web-API-Keys. */
+export interface SteamKeyStatus {
+  connected: boolean
+  personaName: string | null // Steam-Profilname (lokal aus loginusers.vdf gelesen)
+  steamId: string | null // SteamID64
+}
+
+/** Zustand des hinterlegten SteamGridDB-Keys. */
+export interface SgdbStatus {
+  connected: boolean
+}
+
 /** Ein Steam-Angebot (aktueller Sale). */
 export interface SteamOffer {
   appId: number

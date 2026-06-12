@@ -37,6 +37,11 @@ import {
 import { getEpicFreeGames } from './services/epic/store'
 import { getEpicLibrary } from './services/epic/library'
 import { getSteamOffers } from './services/steam/offers'
+import { getGameDetails, getGameNews } from './services/gamedetails'
+import { getGameAchievements } from './services/steam/achievements'
+import { steamKeyStatus, setSteamApiKey, clearSteamApiKey } from './services/steam/webapi'
+import { sgdbStatus, setSgdbKey, clearSgdbKey, upgradeWikiCovers } from './services/sgdb'
+import { COVER_PLATFORMS } from './services/covers'
 
 // Referenz aufs Hauptfenster, damit der Wächter Live-Updates schicken kann.
 let mainWindow: BrowserWindow | null = null
@@ -267,6 +272,30 @@ app.whenReady().then(() => {
   ipcMain.handle('epic:free-games', () => getEpicFreeGames())
   ipcMain.handle('epic:library', () => getEpicLibrary())
   ipcMain.handle('steam:offers', () => getSteamOffers())
+
+  // Spiel-Detailseiten: Store-Infos, News/Patchnotes und Erfolge.
+  ipcMain.handle('game:details', (_e, gameId: number) => getGameDetails(gameId))
+  ipcMain.handle('game:news', (_e, gameId: number) => getGameNews(gameId))
+  ipcMain.handle('game:achievements', (_e, gameId: number) => getGameAchievements(gameId))
+
+  // Steam-Web-API-Key (für Erfolge) verwalten.
+  ipcMain.handle('steamkey:status', () => steamKeyStatus())
+  ipcMain.handle('steamkey:set', (_e, key: string) => setSteamApiKey(key))
+  ipcMain.handle('steamkey:clear', () => clearSteamApiKey())
+
+  // SteamGridDB-Key (für bessere Cover) verwalten. Nach dem Hinterlegen werden
+  // vorhandene Wikipedia-Logo-Cover direkt durch echte Box-Art ersetzt.
+  ipcMain.handle('sgdb:status', () => sgdbStatus())
+  ipcMain.handle('sgdb:set', async (_e, key: string) => {
+    const result = await setSgdbKey(key)
+    if (!result.ok) return result
+    const upgraded = await upgradeWikiCovers(COVER_PLATFORMS)
+    if (upgraded > 0 && mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('games:refresh')
+    }
+    return { ok: true as const, upgradedCovers: upgraded }
+  })
+  ipcMain.handle('sgdb:clear', () => clearSgdbKey())
 
   // Beim Start (falls verbunden) die Epic-Spielzeiten still abgleichen.
   if (epicAccountStatus().connected) {

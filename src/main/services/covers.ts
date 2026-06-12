@@ -1,14 +1,17 @@
 // Online-Cover für Spiele ohne lokale Bilder (Battle.net, Ubisoft, Riot, RSI).
-// Drei Quellen in fester Reihenfolge, alle OHNE Schlüssel/Konto:
+// Quellen in fester Reihenfolge:
 //   1. kuratierte Liste (bekannte Spiele -> feste, stabile URL)
-//   2. öffentliche Steam-Store-Suche nach dem Namen (viele Spiele sind auch
+//   2. SteamGridDB (beste Box-Art — nur wenn ein API-Key hinterlegt ist)
+//   3. öffentliche Steam-Store-Suche nach dem Namen (viele Spiele sind auch
 //      auf Steam gelistet -> deren Hochformat-Cover)
-//   3. Wikipedia-Titelbild des Artikels (deckt Nicht-Steam-Spiele ab)
+//   4. Wikipedia-Titelbild des Artikels (deckt Nicht-Steam-Spiele ab)
 // Gefundene URLs landen in der DB; Fehlversuche werden pro Sitzung gemerkt.
 
 import { listGamesWithoutCover, setGameCover } from '../db'
+import { sgdbCover } from './sgdb'
+import { steamSearchAppId } from './steam/storesearch'
 
-const COVER_PLATFORMS = ['battlenet', 'ubisoft', 'riot', 'rsi']
+export const COVER_PLATFORMS = ['battlenet', 'ubisoft', 'riot', 'rsi']
 
 /** Kuratierte Cover: "<platform>:<platformId>" -> URL. */
 const CURATED: Record<string, string> = {
@@ -38,24 +41,10 @@ async function fetchOk(url: string): Promise<boolean> {
 
 /** Steam-Store-Suche: Name -> Hochformat-Cover (wenn das Spiel dort existiert). */
 async function steamSearchCover(name: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `https://store.steampowered.com/api/storesearch/?term=${encodeURIComponent(name)}&l=german&cc=DE`,
-      { signal: AbortSignal.timeout(8000) }
-    )
-    if (!res.ok) return null
-    const json = (await res.json()) as { items?: { id: number; name: string }[] }
-    const hit = json.items?.[0]
-    if (!hit) return null
-    // Nur akzeptieren, wenn der Treffer wirklich nach dem Spiel klingt.
-    const a = hit.name.toLowerCase()
-    const b = name.toLowerCase()
-    if (!a.includes(b) && !b.includes(a)) return null
-    const cover = `https://cdn.cloudflare.steamstatic.com/steam/apps/${hit.id}/library_600x900.jpg`
-    return (await fetchOk(cover)) ? cover : null
-  } catch {
-    return null
-  }
+  const appId = await steamSearchAppId(name)
+  if (!appId) return null
+  const cover = `https://cdn.cloudflare.steamstatic.com/steam/apps/${appId}/library_600x900.jpg`
+  return (await fetchOk(cover)) ? cover : null
 }
 
 /** Wikipedia-Titelbild (Infobox-Bild) des Artikels. */
@@ -89,6 +78,7 @@ export async function resolveMissingCovers(): Promise<number> {
     attempted.add(key)
 
     let url: string | null = CURATED[key] ?? null
+    if (!url) url = await sgdbCover(game.name) // tut nichts ohne Key
     if (!url) url = await steamSearchCover(game.name)
     if (!url) url = await wikipediaCover(WIKI_TITLE[key] ?? game.name)
 

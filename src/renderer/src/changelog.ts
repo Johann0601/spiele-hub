@@ -11,6 +11,18 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.6.0',
+    date: '2026-06-12',
+    title: 'Spiel-Detailseiten',
+    changes: [
+      'Detailseiten zeigen jetzt Store-Infos: Genres, Metacritic-Wertung, deutsche Beschreibung, Entwickler/Publisher/Erscheinungsdatum und eine scrollbare Screenshot-Reihe mit Großansicht — auch für Nicht-Steam-Spiele wie Call of Duty oder Star Citizen.',
+      'Neuer Bereich „Neuigkeiten & Patchnotes" pro Spiel: die letzten Meldungen mit Datum und Quelle, Klick öffnet die volle Meldung im Browser.',
+      'Steam-Erfolge auf der Detailseite: Fortschrittsbalken und alle Erfolge mit weltweiter Freischalt-Quote — dafür unter Einstellungen → Konten den kostenlosen Steam-Web-API-Key hinterlegen.',
+      'SteamGridDB-Anbindung für bessere Cover (Einstellungen → Konten): ersetzt die bisherigen Wikipedia-Logos automatisch durch echte Box-Art.',
+      'Beide Schlüssel werden mit Windows-Verschlüsselung nur lokal gespeichert.'
+    ]
+  },
+  {
     version: '0.5.0',
     date: '2026-06-12',
     title: 'Launcher-Welle 2',

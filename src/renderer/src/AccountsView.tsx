@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { EpicAccountStatus } from '@shared/types'
+import type { EpicAccountStatus, SgdbStatus, SteamKeyStatus } from '@shared/types'
 
 // Konten-Bereich: externe Konten mit der App VERBINDEN (kein eigenes
 // App-Login). Aktuell: Epic Games — lesend für Spielzeiten & Bibliothek.
@@ -20,6 +20,8 @@ function AccountsView({ onBack }: { onBack?: () => void }): JSX.Element {
 
       <main className="content">
         <EpicAccountCard />
+        <SteamKeyCard />
+        <SgdbKeyCard />
         <p className="hint">
           Die App liest nur Daten (Spielzeiten, Bibliothek) — sie verändert nie etwas an deinen
           Konten. Dein Passwort gibst du ausschließlich auf der offiziellen Epic-Seite ein; die App
@@ -160,6 +162,206 @@ function EpicAccountCard(): JSX.Element {
           Spielen zählt wie gewohnt obendrauf — nichts wird doppelt gezählt.
         </p>
       )}
+    </section>
+  )
+}
+
+// Steam-Web-API-Key: kostenlos, schaltet die Erfolge auf den Detailseiten frei.
+// Die SteamID kommt automatisch aus der lokalen Steam-Installation.
+function SteamKeyCard(): JSX.Element {
+  const [status, setStatus] = useState<SteamKeyStatus | null>(null)
+  const [key, setKey] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
+
+  useEffect(() => {
+    window.api.getSteamKeyStatus().then(setStatus).catch(() => {})
+  }, [])
+
+  const save = async (): Promise<void> => {
+    if (!key.trim()) return
+    setBusy(true)
+    setMessage(null)
+    const result = await window.api.setSteamKey(key)
+    setBusy(false)
+    if (result.ok) {
+      setStatus(result.status)
+      setKey('')
+      setMessage({ kind: 'ok', text: 'Key gespeichert — die Erfolge erscheinen jetzt auf den Spiel-Detailseiten.' })
+    } else {
+      setMessage({ kind: 'error', text: result.error })
+    }
+  }
+
+  const remove = async (): Promise<void> => {
+    setStatus(await window.api.clearSteamKey())
+    setMessage({ kind: 'ok', text: 'Key entfernt.' })
+  }
+
+  return (
+    <section className="account-card">
+      <div className="account-head">
+        <span className="account-icon">🏆</span>
+        <div>
+          <div className="account-title">Steam-Erfolge (Web-API-Key)</div>
+          <div className="account-state">
+            {status === null
+              ? 'lade …'
+              : status.connected
+                ? `✓ Aktiv${status.personaName ? ` für ${status.personaName}` : ''}`
+                : 'Kein Key hinterlegt'}
+          </div>
+        </div>
+      </div>
+
+      {status?.connected ? (
+        <div className="account-actions">
+          <button className="btn danger" onClick={remove} disabled={busy}>
+            Key entfernen
+          </button>
+        </div>
+      ) : (
+        status !== null && (
+          <div className="account-connect">
+            <ol className="account-steps">
+              <li>
+                Öffne{' '}
+                <a href="https://steamcommunity.com/dev/apikey" target="_blank" rel="noreferrer">
+                  steamcommunity.com/dev/apikey
+                </a>{' '}
+                und melde dich an.
+              </li>
+              <li>
+                Als „Domainname" kannst du einfach <code>localhost</code> eintragen — der Key ist
+                kostenlos und sofort gültig.
+              </li>
+              <li>Kopiere den Key (32 Zeichen) und füge ihn hier ein.</li>
+            </ol>
+            <div className="account-actions">
+              <input
+                type="text"
+                className="account-code-input"
+                placeholder="Steam-Web-API-Key einfügen"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') save()
+                }}
+              />
+              <button className="btn primary" onClick={save} disabled={busy || !key.trim()}>
+                {busy ? 'Prüfe …' : 'Speichern'}
+              </button>
+            </div>
+          </div>
+        )
+      )}
+
+      {message && <div className={`account-message ${message.kind}`}>{message.text}</div>}
+
+      {status?.connected && (
+        <p className="account-note">
+          Damit zeigen die Spiel-Detailseiten deine freigeschalteten Erfolge. Wichtig: In Steam
+          müssen unter Profil → Privatsphäre die „Spieldetails" auf öffentlich stehen.
+        </p>
+      )}
+    </section>
+  )
+}
+
+// SteamGridDB-Key: kostenlos, liefert echte Box-Art-Cover für Spiele aller
+// Plattformen (ersetzt die Wikipedia-Logos).
+function SgdbKeyCard(): JSX.Element {
+  const [status, setStatus] = useState<SgdbStatus | null>(null)
+  const [key, setKey] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState<{ kind: 'ok' | 'error'; text: string } | null>(null)
+
+  useEffect(() => {
+    window.api.getSgdbStatus().then(setStatus).catch(() => {})
+  }, [])
+
+  const save = async (): Promise<void> => {
+    if (!key.trim()) return
+    setBusy(true)
+    setMessage(null)
+    const result = await window.api.setSgdbKey(key)
+    setBusy(false)
+    if (result.ok) {
+      setStatus({ connected: true })
+      setKey('')
+      setMessage({
+        kind: 'ok',
+        text:
+          result.upgradedCovers > 0
+            ? `Key gespeichert — ${result.upgradedCovers} Cover wurden direkt durch Box-Art ersetzt.`
+            : 'Key gespeichert — neue Spiele bekommen ab jetzt Cover von SteamGridDB.'
+      })
+    } else {
+      setMessage({ kind: 'error', text: result.error })
+    }
+  }
+
+  const remove = async (): Promise<void> => {
+    setStatus(await window.api.clearSgdbKey())
+    setMessage({ kind: 'ok', text: 'Key entfernt. Vorhandene Cover bleiben erhalten.' })
+  }
+
+  return (
+    <section className="account-card">
+      <div className="account-head">
+        <span className="account-icon">🖼️</span>
+        <div>
+          <div className="account-title">SteamGridDB (bessere Cover)</div>
+          <div className="account-state">
+            {status === null ? 'lade …' : status.connected ? '✓ Aktiv' : 'Kein Key hinterlegt'}
+          </div>
+        </div>
+      </div>
+
+      {status?.connected ? (
+        <div className="account-actions">
+          <button className="btn danger" onClick={remove} disabled={busy}>
+            Key entfernen
+          </button>
+        </div>
+      ) : (
+        status !== null && (
+          <div className="account-connect">
+            <ol className="account-steps">
+              <li>
+                Öffne{' '}
+                <a
+                  href="https://www.steamgriddb.com/profile/preferences/api"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  steamgriddb.com → Preferences → API
+                </a>{' '}
+                und melde dich mit deinem Steam-Konto an.
+              </li>
+              <li>Klicke auf „Generate API Key" und kopiere den Key.</li>
+              <li>Hier einfügen — fertige Logos werden direkt durch echte Box-Art ersetzt.</li>
+            </ol>
+            <div className="account-actions">
+              <input
+                type="text"
+                className="account-code-input"
+                placeholder="SteamGridDB-API-Key einfügen"
+                value={key}
+                onChange={(e) => setKey(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') save()
+                }}
+              />
+              <button className="btn primary" onClick={save} disabled={busy || !key.trim()}>
+                {busy ? 'Prüfe …' : 'Speichern'}
+              </button>
+            </div>
+          </div>
+        )
+      )}
+
+      {message && <div className={`account-message ${message.kind}`}>{message.text}</div>}
     </section>
   )
 }

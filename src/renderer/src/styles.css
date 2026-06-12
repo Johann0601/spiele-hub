@@ -462,9 +462,15 @@ body {
 
 /* ---- Detailansicht ---- */
 .content.detail {
+  display: block;
+}
+
+/* Obere Zeile der Detailseite: Cover links, Infos rechts. */
+.detail-top {
   display: flex;
   gap: 28px;
   align-items: flex-start;
+  margin-bottom: 34px;
 }
 
 .detail-cover {
@@ -1656,4 +1662,251 @@ img.logo-cover {
   color: var(--muted);
   font-size: 16px;
   flex: none;
+}
+
+/* ---- Spiel-Detailseite: Store-Infos, Erfolge, News ---- */
+.detail-section {
+  margin-bottom: 34px;
+}
+
+.genre-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.genre-chip {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 4px 12px;
+}
+
+.genre-chip.metacritic {
+  color: #06220f;
+  background: #2ecc71;
+  border-color: transparent;
+}
+
+.game-desc {
+  max-width: 860px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text);
+  margin: 0 0 14px;
+}
+
+.store-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.store-facts b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.store-facts a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.store-facts a:hover {
+  text-decoration: underline;
+}
+
+/* Screenshots: seitlich scrollbare Reihe, Klick öffnet die Großansicht. */
+.shot-row {
+  margin-top: 4px;
+}
+
+.shot-thumb {
+  flex: 0 0 auto;
+  width: 260px;
+  height: 146px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: zoom-in;
+  transition: transform 0.12s ease, border-color 0.12s ease;
+}
+
+.shot-thumb:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Großansicht eines Screenshots — Klick irgendwohin schließt sie. */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(5, 7, 12, 0.88);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: zoom-out;
+}
+
+.lightbox img {
+  max-width: 92vw;
+  max-height: 90vh;
+  border-radius: 10px;
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.6);
+}
+
+/* Erfolge */
+.ach-progress {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 16px;
+  max-width: 640px;
+}
+
+.ach-progress-bar {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+
+.ach-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #8da6ff);
+  border-radius: 999px;
+}
+
+.ach-progress-text {
+  font-size: 13px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.ach-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.ach-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 9px 12px;
+  min-width: 0;
+}
+
+.ach-item img {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  flex: none;
+  background: var(--panel-2);
+}
+
+.ach-item.locked {
+  opacity: 0.62;
+}
+
+.ach-item.done {
+  border-color: rgba(125, 216, 125, 0.45);
+}
+
+.ach-text {
+  min-width: 0;
+}
+
+.ach-name {
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ach-desc {
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ach-global {
+  font-size: 10.5px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* News & Patchnotes */
+.news-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 860px;
+}
+
+.news-item {
+  display: block;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  color: var(--text);
+  text-decoration: none;
+  transition: border-color 0.12s ease, transform 0.12s ease;
+}
+
+.news-item:hover {
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+.news-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.news-title {
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 0;
+}
+
+.news-date {
+  font-size: 12px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.news-excerpt {
+  font-size: 12.5px;
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 5px;
+}
+
+.news-source {
+  font-size: 11px;
+  color: var(--accent);
+  margin-top: 7px;
 }

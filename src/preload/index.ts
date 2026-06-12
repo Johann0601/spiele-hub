@@ -1,16 +1,21 @@
 import { contextBridge, ipcRenderer } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import type {
+  AchievementsResult,
   DeviceInfo,
   EpicAccountStatus,
   EpicFreeGame,
   EpicLibraryResult,
   EpicSyncResult,
   GameCard,
+  GameDetails,
+  GameNewsItem,
   NvidiaUpdate,
   RunningGame,
   McProfile,
   ScanResult,
+  SgdbStatus,
+  SteamKeyStatus,
   SteamOffer,
   UpdateEvent,
   WotStatus
@@ -108,7 +113,30 @@ const api = {
   /** Shops: Gratisspiele, komplette Epic-Bibliothek, Steam-Angebote. */
   getEpicFreeGames: (): Promise<EpicFreeGame[]> => ipcRenderer.invoke('epic:free-games'),
   getEpicLibrary: (): Promise<EpicLibraryResult> => ipcRenderer.invoke('epic:library'),
-  getSteamOffers: (): Promise<SteamOffer[]> => ipcRenderer.invoke('steam:offers')
+  getSteamOffers: (): Promise<SteamOffer[]> => ipcRenderer.invoke('steam:offers'),
+
+  /** Detailseiten: Store-Infos, News/Patchnotes und Erfolge zu einem Spiel. */
+  getGameDetails: (gameId: number): Promise<GameDetails> =>
+    ipcRenderer.invoke('game:details', gameId),
+  getGameNews: (gameId: number): Promise<GameNewsItem[]> => ipcRenderer.invoke('game:news', gameId),
+  getGameAchievements: (gameId: number): Promise<AchievementsResult> =>
+    ipcRenderer.invoke('game:achievements', gameId),
+
+  /** Steam-Web-API-Key (für Erfolge) verwalten. */
+  getSteamKeyStatus: (): Promise<SteamKeyStatus> => ipcRenderer.invoke('steamkey:status'),
+  setSteamKey: (
+    key: string
+  ): Promise<{ ok: true; status: SteamKeyStatus } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('steamkey:set', key),
+  clearSteamKey: (): Promise<SteamKeyStatus> => ipcRenderer.invoke('steamkey:clear'),
+
+  /** SteamGridDB-Key (für bessere Cover) verwalten. */
+  getSgdbStatus: (): Promise<SgdbStatus> => ipcRenderer.invoke('sgdb:status'),
+  setSgdbKey: (
+    key: string
+  ): Promise<{ ok: true; upgradedCovers: number } | { ok: false; error: string }> =>
+    ipcRenderer.invoke('sgdb:set', key),
+  clearSgdbKey: (): Promise<SgdbStatus> => ipcRenderer.invoke('sgdb:clear')
 }
 
 if (process.contextIsolated) {
