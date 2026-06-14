@@ -11,6 +11,14 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.12.1',
+    date: '2026-06-14',
+    title: 'Preisvergleich eingebaut',
+    changes: [
+      'Bestpreis über alle Shops und historischer Tiefstpreis sind jetzt direkt eingebaut (IsThereAnyDeal) — auf den Spiel-Detailseiten sichtbar, ohne dass jemand einen eigenen Key braucht.'
+    ]
+  },
+  {
     version: '0.12.0',
     date: '2026-06-14',
     title: 'Tag-Filter & weniger Einrichtung',
