@@ -11,7 +11,9 @@ function NotificationsView({
   nvidia,
   wishlistDeals,
   epicFreebies,
-  onDismissFreebie
+  onDismissFreebie,
+  onRefresh,
+  refreshing
 }: {
   appUpdateVersion: string | null
   pendingGames: GameCard[]
@@ -19,6 +21,8 @@ function NotificationsView({
   wishlistDeals: WishlistItem[]
   epicFreebies: EpicFreeGame[]
   onDismissFreebie: (title: string) => void
+  onRefresh: () => void
+  refreshing: boolean
 }): JSX.Element {
   const count =
     (appUpdateVersion ? 1 : 0) +
@@ -36,6 +40,9 @@ function NotificationsView({
             {count === 0 ? 'nichts offen' : `${count} offen`}
           </span>
         </div>
+        <button className="btn" onClick={onRefresh} disabled={refreshing}>
+          {refreshing ? 'Prüfe …' : '↻ Aktualisieren'}
+        </button>
       </header>
 
       <main className="content">
@@ -175,7 +182,7 @@ function NotificationsView({
         <p className="hint">
           Hier landet alles Wichtige: App-Updates, Spiel-Updates, Nvidia-Treiber,
           Wunschlisten-Rabatte (Preisprüfung alle 6 Stunden) und Epic-Gratisspiele, die du noch
-          nicht eingelöst hast.
+          nicht eingelöst hast. Mit „↻ Aktualisieren" oben prüfst du alles sofort neu.
         </p>
       </main>
     </div>

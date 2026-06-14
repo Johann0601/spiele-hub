@@ -61,36 +61,95 @@ function App(): JSX.Element {
     }
   })
 
-  // Wunschliste: nur Einträge MIT Rabatt landen in der Glocke.
-  useEffect(() => {
-    const loadDeals = (): void => {
-      window.api
-        .getWishlist()
-        .then((items) => setWishlistDeals(items.filter((i) => i.discountPct > 0)))
-        .catch(() => {})
-    }
-    loadDeals()
-    return window.api.onWishlistRefresh(loadDeals) // nach jeder Preisprüfung
+  const [refreshing, setRefreshing] = useState(false) // Glocke wird gerade neu geprüft
+
+  // --- Lade-Funktionen der Glocke (wiederverwendbar, auch für „↻ Aktualisieren") ---
+
+  // Wunschlisten-Rabatte aus der DB lesen (ohne neue Preisprüfung).
+  const loadDeals = useCallback((): Promise<void> => {
+    return window.api
+      .getWishlist()
+      .then((items) => setWishlistDeals(items.filter((i) => i.discountPct > 0)))
+      .catch(() => {})
+  }, [])
+
+  // Ausstehende Spiel-Updates aus der (bereits gescannten) Bibliothek lesen.
+  const loadPending = useCallback((): Promise<void> => {
+    return window.api
+      .listGames()
+      .then((g) => setPendingGames(g.filter((x) => x.kind === 'game' && x.updatePending)))
+      .catch(() => {})
   }, [])
 
   // Epic-Gratisspiele, die noch NICHT in der Bibliothek sind (braucht Konto).
-  useEffect(() => {
-    ;(async () => {
-      try {
-        const [free, lib] = await Promise.all([
-          window.api.getEpicFreeGames(),
-          window.api.getEpicLibrary()
-        ])
-        if (!lib.ok) return // ohne verbundenes Konto keine Erinnerung
-        const owned = new Set(lib.games.map((g) => g.title.toLowerCase().trim()))
-        setEpicFreebies(
-          free.filter((f) => f.status === 'gratis' && !owned.has(f.title.toLowerCase().trim()))
-        )
-      } catch {
-        /* offline o. ä. */
-      }
-    })()
+  const loadFreebies = useCallback(async (): Promise<void> => {
+    try {
+      const [free, lib] = await Promise.all([
+        window.api.getEpicFreeGames(),
+        window.api.getEpicLibrary()
+      ])
+      if (!lib.ok) return // ohne verbundenes Konto keine Erinnerung
+      const owned = new Set(lib.games.map((g) => g.title.toLowerCase().trim()))
+      setEpicFreebies(
+        free.filter((f) => f.status === 'gratis' && !owned.has(f.title.toLowerCase().trim()))
+      )
+    } catch {
+      /* offline o. ä. */
+    }
   }, [])
+
+  // Nvidia-Treiber-Update prüfen (nur falls eine Nvidia-GPU steckt).
+  const loadNvidia = useCallback(async (): Promise<void> => {
+    try {
+      const devices = await window.api.getDevices()
+      const gpu = devices.find((d) => d.isNvidiaGpu)
+      if (gpu) setNvidia(await window.api.checkNvidiaUpdate(gpu.name, gpu.driverVersion))
+    } catch {
+      /* keine Treiber-Benachrichtigung */
+    }
+  }, [])
+
+  // „↻ Aktualisieren" in der Glocke: alle Prüfungen frisch anstoßen — inkl.
+  // Bibliotheks-Scan (Update-Erkennung) und aktiver Wunschlisten-Preisprüfung.
+  const refreshNotifications = useCallback(async (): Promise<void> => {
+    setRefreshing(true)
+    try {
+      await window.api.scanLibrary().catch(() => {}) // frische Spiel-Update-Erkennung
+      await Promise.all([
+        loadPending(),
+        window.api
+          .checkWishlistPrices()
+          .then((items) => setWishlistDeals(items.filter((i) => i.discountPct > 0)))
+          .catch(() => {}),
+        loadFreebies(),
+        loadNvidia()
+      ])
+    } finally {
+      setRefreshing(false)
+    }
+  }, [loadPending, loadFreebies, loadNvidia])
+
+  // Erstes Laden + Live-Auffrischung über die Hintergrund-Ereignisse.
+  useEffect(() => {
+    loadDeals()
+    return window.api.onWishlistRefresh(loadDeals) // nach jeder Preisprüfung
+  }, [loadDeals])
+
+  useEffect(() => {
+    loadFreebies()
+  }, [loadFreebies])
+
+  useEffect(() => {
+    window.api.getAppVersion().then(setAppVersion).catch(() => {})
+    return window.api.onAppUpdateReady(setUpdateVersion)
+  }, [])
+
+  useEffect(() => {
+    loadPending()
+    const off = window.api.onGamesRefresh(loadPending) // nach jedem Hintergrund-Scan
+    loadNvidia()
+    return off
+  }, [loadPending, loadNvidia])
 
   const visibleFreebies = epicFreebies.filter((f) => !dismissedFreebies.includes(f.title))
   const dismissFreebie = (title: string): void => {
@@ -100,32 +159,6 @@ function App(): JSX.Element {
       return next
     })
   }
-
-  useEffect(() => {
-    window.api.getAppVersion().then(setAppVersion).catch(() => {})
-    return window.api.onAppUpdateReady(setUpdateVersion)
-  }, [])
-
-  useEffect(() => {
-    const loadPending = (): void => {
-      window.api
-        .listGames()
-        .then((g) => setPendingGames(g.filter((x) => x.kind === 'game' && x.updatePending)))
-        .catch(() => {})
-    }
-    loadPending()
-    const off = window.api.onGamesRefresh(loadPending) // nach jedem Hintergrund-Scan
-    ;(async () => {
-      try {
-        const devices = await window.api.getDevices()
-        const gpu = devices.find((d) => d.isNvidiaGpu)
-        if (gpu) setNvidia(await window.api.checkNvidiaUpdate(gpu.name, gpu.driverVersion))
-      } catch {
-        /* keine Treiber-Benachrichtigung */
-      }
-    })()
-    return off
-  }, [])
 
   const notifCount =
     (updateVersion ? 1 : 0) +
@@ -233,6 +266,8 @@ function App(): JSX.Element {
             wishlistDeals={wishlistDeals}
             epicFreebies={visibleFreebies}
             onDismissFreebie={dismissFreebie}
+            onRefresh={refreshNotifications}
+            refreshing={refreshing}
           />
         )}
         {inSettings && (

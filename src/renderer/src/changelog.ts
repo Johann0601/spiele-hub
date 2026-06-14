@@ -11,6 +11,14 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.1',
+    date: '2026-06-14',
+    title: 'Glocke aktualisieren',
+    changes: [
+      'Neuer Knopf „↻ Aktualisieren" in den Benachrichtigungen: prüft sofort alles neu — Spiel-Updates (frischer Bibliotheks-Scan), Wunschlisten-Preise, Nvidia-Treiber und Epic-Gratisspiele — ohne auf die automatische 6-Stunden-Prüfung zu warten.'
+    ]
+  },
+  {
     version: '0.9.0',
     date: '2026-06-14',
     title: 'Nicht installierte Spiele',
