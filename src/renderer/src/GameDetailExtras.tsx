@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react'
 import type {
   AchievementsResult,
-  GameCard,
   GameDetails,
   GameNewsItem,
-  GamePriceInfo
+  GamePriceInfo,
+  GameRef
 } from '@shared/types'
 import { formatEuro } from './format'
 
@@ -20,7 +20,7 @@ function formatNewsDate(unixSec: number): string {
   })
 }
 
-function GameDetailExtras({ game }: { game: GameCard }): JSX.Element | null {
+function GameDetailExtras({ gameRef }: { gameRef: GameRef }): JSX.Element | null {
   const [details, setDetails] = useState<GameDetails | null>(null)
   const [news, setNews] = useState<GameNewsItem[] | null>(null)
   const [achievements, setAchievements] = useState<AchievementsResult | null>(null)
@@ -35,17 +35,17 @@ function GameDetailExtras({ game }: { game: GameCard }): JSX.Element | null {
     setPrices(null)
     setLightbox(null)
     let cancelled = false
-    window.api.getGameDetails(game.id).then((d) => !cancelled && setDetails(d)).catch(() => {})
-    window.api.getGameNews(game.id).then((n) => !cancelled && setNews(n)).catch(() => {})
+    window.api.getGameDetails(gameRef).then((d) => !cancelled && setDetails(d)).catch(() => {})
+    window.api.getGameNews(gameRef).then((n) => !cancelled && setNews(n)).catch(() => {})
     window.api
-      .getGameAchievements(game.id)
+      .getGameAchievements(gameRef)
       .then((a) => !cancelled && setAchievements(a))
       .catch(() => {})
-    window.api.getGamePrices(game.id).then((p) => !cancelled && setPrices(p)).catch(() => {})
+    window.api.getGamePrices(gameRef).then((p) => !cancelled && setPrices(p)).catch(() => {})
     return () => {
       cancelled = true
     }
-  }, [game.id])
+  }, [gameRef.platform, gameRef.platformId, gameRef.name])
 
   const hasStoreInfo =
     details?.ok &&

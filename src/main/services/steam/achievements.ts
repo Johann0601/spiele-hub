@@ -5,8 +5,7 @@
 // Die weltweiten Quoten sind öffentlich — damit erkennen wir auch OHNE Key,
 // ob ein Spiel überhaupt Erfolge hat (für einen sinnvollen Hinweis in der UI).
 
-import type { AchievementsResult, GameAchievement } from '@shared/types'
-import { getGameBasic } from '../../db'
+import type { AchievementsResult, GameAchievement, GameRef } from '@shared/types'
 import { getSteamApiKey, steamIdentity } from './webapi'
 
 const API = 'https://api.steampowered.com/ISteamUserStats'
@@ -68,10 +67,9 @@ async function fetchGlobalPercents(appId: number): Promise<Map<string, number>> 
 const NONE: AchievementsResult = { ok: true, supported: false, unlocked: 0, total: 0, list: [] }
 
 /** Erfolge eines Spiels samt Freischalt-Stand des Nutzers laden. */
-export async function getGameAchievements(gameId: number): Promise<AchievementsResult> {
-  const game = getGameBasic(gameId)
+export async function getGameAchievements(game: GameRef): Promise<AchievementsResult> {
   // Erfolge gibt es nur für Steam-Spiele (der Stand hängt am Steam-Konto).
-  if (!game || game.platform !== 'steam') return NONE
+  if (game.platform !== 'steam') return NONE
   const appId = Number(game.platformId)
   if (!Number.isFinite(appId)) return NONE
 

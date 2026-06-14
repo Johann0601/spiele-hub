@@ -15,6 +15,7 @@ import {
   listUpdateEvents,
   setImportedPlaytime
 } from './db'
+import type { GameRef } from '@shared/types'
 import { scanLibrary } from './services/library'
 import { listNotInstalledGames } from './services/notinstalled'
 import { startTracker, closeGame } from './services/tracker'
@@ -281,9 +282,9 @@ app.whenReady().then(() => {
   ipcMain.handle('steam:offers', () => getSteamOffers())
 
   // Spiel-Detailseiten: Store-Infos, News/Patchnotes und Erfolge.
-  ipcMain.handle('game:details', (_e, gameId: number) => getGameDetails(gameId))
-  ipcMain.handle('game:news', (_e, gameId: number) => getGameNews(gameId))
-  ipcMain.handle('game:achievements', (_e, gameId: number) => getGameAchievements(gameId))
+  ipcMain.handle('game:details', (_e, ref: GameRef) => getGameDetails(ref))
+  ipcMain.handle('game:news', (_e, ref: GameRef) => getGameNews(ref))
+  ipcMain.handle('game:achievements', (_e, ref: GameRef) => getGameAchievements(ref))
 
   // Steam-Web-API-Key (für Erfolge) verwalten.
   ipcMain.handle('steamkey:status', () => steamKeyStatus())
@@ -336,7 +337,7 @@ app.whenReady().then(() => {
   })
   ipcMain.handle('steam:search', (_e, term: string) => searchSteamStore(term))
   ipcMain.handle('epic:search', (_e, term: string) => searchEpicStore(term))
-  ipcMain.handle('game:prices', (_e, gameId: number) => getGamePrices(gameId))
+  ipcMain.handle('game:prices', (_e, ref: GameRef) => getGamePrices(ref))
 
   // IsThereAnyDeal-Key (Preisvergleich/Tiefstpreise) verwalten.
   ipcMain.handle('itad:status', () => itadStatus())

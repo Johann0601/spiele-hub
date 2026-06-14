@@ -61,6 +61,17 @@ export interface NotInstalledResult {
   error?: string
 }
 
+/**
+ * Kennung eines Spiels für Detail-Abrufe (Store-Infos, News, Preise, Erfolge).
+ * Bewusst NICHT die DB-ID — so funktionieren die Abrufe auch für nicht
+ * installierte Katalog-Spiele, die (noch) keinen DB-Eintrag haben.
+ */
+export interface GameRef {
+  platform: Platform
+  platformId: string
+  name: string
+}
+
 // --- Speicherplatz-Analyse ---
 
 /** Speicherbelegung eines installierten Spiels. */

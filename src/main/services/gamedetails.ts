@@ -8,8 +8,7 @@
 import { app } from 'electron'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
-import type { GameDetails, GameNewsItem, GamePriceInfo } from '@shared/types'
-import { getGameBasic } from '../db'
+import type { GameDetails, GameNewsItem, GamePriceInfo, GameRef } from '@shared/types'
 import { getItadPrices, itadStatus } from './itad'
 import { steamSearchAppId } from './steam/storesearch'
 
@@ -113,10 +112,7 @@ const EMPTY: Omit<GameDetails, 'ok' | 'error'> = {
 }
 
 /** Store-Infos zu einem Spiel laden (mit Cache). */
-export async function getGameDetails(gameId: number): Promise<GameDetails> {
-  const game = getGameBasic(gameId)
-  if (!game) return { ok: false, ...EMPTY, error: 'Spiel nicht gefunden.' }
-
+export async function getGameDetails(game: GameRef): Promise<GameDetails> {
   const key = `${game.platform}:${game.platformId}`
   const store = loadCache()
   const cached = store[key]
@@ -148,7 +144,7 @@ export async function getGameDetails(gameId: number): Promise<GameDetails> {
  * falls ein IsThereAnyDeal-Key hinterlegt ist — bester Shop-Preis und
  * historischer Tiefstpreis.
  */
-export async function getGamePrices(gameId: number): Promise<GamePriceInfo> {
+export async function getGamePrices(game: GameRef): Promise<GamePriceInfo> {
   const empty: GamePriceInfo = {
     ok: true,
     appId: null,
@@ -159,7 +155,7 @@ export async function getGamePrices(gameId: number): Promise<GamePriceInfo> {
   }
 
   // getGameDetails liefert die (gecachte) AppID-Zuordnung mit.
-  const details = await getGameDetails(gameId)
+  const details = await getGameDetails(game)
   if (!details.appId) return empty
   empty.appId = details.appId
 
@@ -218,9 +214,9 @@ interface NewsItemRaw {
 }
 
 /** Aktuelle News/Patchnotes zu einem Spiel (über die zugeordnete AppID). */
-export async function getGameNews(gameId: number): Promise<GameNewsItem[]> {
+export async function getGameNews(game: GameRef): Promise<GameNewsItem[]> {
   // getGameDetails kümmert sich um AppID-Zuordnung + Cache.
-  const details = await getGameDetails(gameId)
+  const details = await getGameDetails(game)
   if (!details.appId) return []
 
   try {

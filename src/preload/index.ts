@@ -12,6 +12,7 @@ import type {
   GameDetails,
   GameNewsItem,
   GamePriceInfo,
+  GameRef,
   GameStorageInfo,
   ItadStatus,
   NvidiaUpdate,
@@ -126,12 +127,13 @@ const api = {
   getEpicLibrary: (): Promise<EpicLibraryResult> => ipcRenderer.invoke('epic:library'),
   getSteamOffers: (): Promise<SteamOffer[]> => ipcRenderer.invoke('steam:offers'),
 
-  /** Detailseiten: Store-Infos, News/Patchnotes und Erfolge zu einem Spiel. */
-  getGameDetails: (gameId: number): Promise<GameDetails> =>
-    ipcRenderer.invoke('game:details', gameId),
-  getGameNews: (gameId: number): Promise<GameNewsItem[]> => ipcRenderer.invoke('game:news', gameId),
-  getGameAchievements: (gameId: number): Promise<AchievementsResult> =>
-    ipcRenderer.invoke('game:achievements', gameId),
+  /** Detailseiten: Store-Infos, News/Patchnotes und Erfolge zu einem Spiel.
+   *  Per GameRef (Plattform+ID+Name) — funktioniert auch für nicht installierte. */
+  getGameDetails: (ref: GameRef): Promise<GameDetails> =>
+    ipcRenderer.invoke('game:details', ref),
+  getGameNews: (ref: GameRef): Promise<GameNewsItem[]> => ipcRenderer.invoke('game:news', ref),
+  getGameAchievements: (ref: GameRef): Promise<AchievementsResult> =>
+    ipcRenderer.invoke('game:achievements', ref),
 
   /** Steam-Web-API-Key (für Erfolge) verwalten. */
   getSteamKeyStatus: (): Promise<SteamKeyStatus> => ipcRenderer.invoke('steamkey:status'),
@@ -199,8 +201,8 @@ const api = {
     ipcRenderer.invoke('epic:search', term),
 
   /** Preis-Infos zu einem Spiel (Steam + IsThereAnyDeal). */
-  getGamePrices: (gameId: number): Promise<GamePriceInfo> =>
-    ipcRenderer.invoke('game:prices', gameId),
+  getGamePrices: (ref: GameRef): Promise<GamePriceInfo> =>
+    ipcRenderer.invoke('game:prices', ref),
 
   /** IsThereAnyDeal-Key verwalten. */
   getItadStatus: (): Promise<ItadStatus> => ipcRenderer.invoke('itad:status'),

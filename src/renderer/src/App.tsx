@@ -324,6 +324,7 @@ function GamesView({
   // Nicht installierte Spiele (Besitz-Katalog) — separat geladen, damit die
   // Seite sofort steht und der (teils langsame) Katalog-Abruf nachrückt.
   const [notInstalled, setNotInstalled] = useState<NotInstalledGame[] | null>(null)
+  const [selectedNi, setSelectedNi] = useState<NotInstalledGame | null>(null) // offene NI-Detailseite
   const [niInfo, setNiInfo] = useState<{
     steamKeyMissing: boolean
     steamLoaded: boolean
@@ -507,6 +508,10 @@ function GamesView({
     )
   }
 
+  if (selectedNi) {
+    return <NotInstalledDetail game={selectedNi} onBack={() => setSelectedNi(null)} />
+  }
+
   return (
     <div className="app">
       <header className="topbar">
@@ -682,7 +687,11 @@ function GamesView({
               ) : (
                 <div className="grid">
                   {visibleNotInstalled.map((game) => (
-                    <NotInstalledTile key={`${game.source}:${game.platformId}`} game={game} />
+                    <NotInstalledTile
+                      key={`${game.source}:${game.platformId}`}
+                      game={game}
+                      onClick={() => setSelectedNi(game)}
+                    />
                   ))}
                 </div>
               )}
@@ -695,20 +704,26 @@ function GamesView({
 }
 
 /** Eine Kachel für ein besessenes, aber nicht installiertes Spiel. */
-function NotInstalledTile({ game }: { game: NotInstalledGame }): JSX.Element {
+function NotInstalledTile({
+  game,
+  onClick
+}: {
+  game: NotInstalledGame
+  onClick: () => void
+}): JSX.Element {
   const [failed, setFailed] = useState(false)
   const isLogo =
     !!game.coverUrl &&
     (game.coverUrl.includes('upload.wikimedia.org') || game.coverUrl.startsWith('cover://xbox/'))
 
   const install = (e: React.MouseEvent): void => {
-    e.stopPropagation()
+    e.stopPropagation() // Klick auf „Installieren" öffnet NICHT die Detailseite
     if (game.installUrl) window.open(game.installUrl) // steam://install/… bzw. Epic-Protokoll
     else window.api.openPlatformLauncher(game.source) // Launcher ohne Direkt-Link
   }
 
   return (
-    <div className="tile not-installed" title={game.name}>
+    <div className="tile not-installed" title={game.name} onClick={onClick}>
       <div className="cover">
         {game.coverUrl && !failed ? (
           <img
@@ -996,7 +1011,101 @@ function GameDetail({
           </div>
         </div>
 
-        <GameDetailExtras game={game} />
+        <GameDetailExtras
+          gameRef={{ platform: game.platform, platformId: game.platformId, name: game.name }}
+        />
+      </main>
+    </div>
+  )
+}
+
+/**
+ * Detailansicht für ein besessenes, aber NICHT installiertes Spiel.
+ * Wie die normale Detailseite, aber schreibgeschützt: kein Starten/Schließen,
+ * kein Speicherplatz — stattdessen ein „Installieren"-Knopf. Store-Infos,
+ * Preise, News und (bei Steam) Erfolge kommen über dieselbe GameRef-Logik.
+ */
+function NotInstalledDetail({
+  game,
+  onBack
+}: {
+  game: NotInstalledGame
+  onBack: () => void
+}): JSX.Element {
+  const install = (): void => {
+    if (game.installUrl) window.open(game.installUrl)
+    else window.api.openPlatformLauncher(game.source)
+  }
+  const coverCard: GameCard = {
+    id: -1,
+    kind: 'game',
+    platform: game.source,
+    platformId: game.platformId,
+    name: game.name,
+    installDir: null,
+    coverUrl: game.coverUrl,
+    totalPlaytimeSec: game.playtimeSec,
+    lastPlayed: game.lastPlayed,
+    updatePending: false,
+    manifestLastUpdated: null,
+    sizeBytes: null
+  }
+
+  return (
+    <div className="app">
+      <header className="topbar">
+        <button className="btn" onClick={onBack}>
+          ← Zurück
+        </button>
+        <div className="brand">
+          <h1>{game.name}</h1>
+        </div>
+        <span />
+      </header>
+
+      <main className="content detail">
+        <div className="detail-top">
+          <div className="detail-cover">
+            <Cover game={coverCard} />
+          </div>
+
+          <div className="detail-info">
+            <h2>{game.name}</h2>
+
+            <div className="stat-row">
+              <div className="stat">
+                <span className="stat-label">Status</span>
+                <span className="stat-value">Nicht installiert</span>
+              </div>
+              <div className="stat">
+                <span className="stat-label">Plattform</span>
+                <span className="stat-value">{platformLabel(game.source)}</span>
+              </div>
+              {game.playtimeSec > 0 && (
+                <div className="stat">
+                  <span className="stat-label">Bisher gespielt</span>
+                  <span className="stat-value">{formatPlaytime(game.playtimeSec)}</span>
+                </div>
+              )}
+              {game.lastPlayed && (
+                <div className="stat">
+                  <span className="stat-label">Zuletzt gespielt</span>
+                  <span className="stat-value">{formatLastPlayed(game.lastPlayed)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="actions">
+              <button className="btn primary" onClick={install}>
+                {game.installUrl ? '⬇ Installieren' : '↗ Launcher öffnen'}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <GameDetailExtras
+          gameRef={{ platform: game.source, platformId: game.platformId, name: game.name }}
+        />
       </main>
     </div>
   )

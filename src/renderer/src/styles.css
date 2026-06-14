@@ -562,13 +562,12 @@ body {
   padding: 8px 12px;
 }
 
-/* Kachel ist nicht anklickbar (kein Detail) — Cover dezent abgedunkelt. */
+/* Kachel öffnet die Detailansicht — Cover dezent abgedunkelt (nicht installiert). */
 .tile.not-installed {
-  cursor: default;
+  cursor: pointer;
 }
 
 .tile.not-installed:hover {
-  transform: none;
   border-color: var(--accent);
 }
 

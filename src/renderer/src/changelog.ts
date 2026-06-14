@@ -11,6 +11,15 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.11.0',
+    date: '2026-06-14',
+    title: 'Detailansicht für nicht installierte Spiele',
+    changes: [
+      'Ein Klick auf ein nicht installiertes Spiel öffnet jetzt eine Detailseite — mit Store-Infos (Beschreibung, Genres, Screenshots), Preisen, Neuigkeiten und (bei Steam) Erfolgen, genau wie bei installierten Spielen.',
+      'Direkt von dort installieren bzw. den passenden Launcher öffnen.'
+    ]
+  },
+  {
     version: '0.10.1',
     date: '2026-06-14',
     title: 'Hell-Modus: Plaketten lesbar',
