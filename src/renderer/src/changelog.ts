@@ -11,6 +11,15 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.2',
+    date: '2026-06-14',
+    title: 'Nicht-installiert: Suche, Filter & Sortierung',
+    changes: [
+      'Die Kategorie „Nicht installiert" hat jetzt eine eigene Suchleiste, einen Plattform-Filter und eine Sortierung (zuletzt gespielt, Spielzeit, Name) — unabhängig von den installierten Spielen.',
+      'Filter und Sortierung der Liste werden gemerkt.'
+    ]
+  },
+  {
     version: '0.9.1',
     date: '2026-06-14',
     title: 'Glocke aktualisieren',

@@ -288,6 +288,15 @@ const SORT_OPTIONS: { value: GameSort; label: string }[] = [
   { value: 'size', label: 'Größe' }
 ]
 
+// Sortierung der Sektion „Nicht installiert" (kein „Größe", da nicht installiert).
+type NiSort = 'lastPlayed' | 'playtime' | 'name'
+
+const NI_SORT_OPTIONS: { value: NiSort; label: string }[] = [
+  { value: 'lastPlayed', label: 'Zuletzt gespielt' },
+  { value: 'playtime', label: 'Spielzeit' },
+  { value: 'name', label: 'Name (A–Z)' }
+]
+
 function GamesView({
   initialSelectedId = null
 }: {
@@ -316,6 +325,15 @@ function GamesView({
     steamLoaded: boolean
     epicConnected: boolean
   } | null>(null)
+  // Eigene Suche/Filter/Sortierung für die Sektion „Nicht installiert".
+  const [niSearch, setNiSearch] = useState('')
+  const [niPlatformFilter, setNiPlatformFilter] = useState<string>(
+    () => localStorage.getItem('ni-filter-platform') ?? 'all'
+  )
+  const [niSort, setNiSort] = useState<NiSort>(() => {
+    const saved = localStorage.getItem('ni-sort')
+    return NI_SORT_OPTIONS.some((o) => o.value === saved) ? (saved as NiSort) : 'lastPlayed'
+  })
 
   useEffect(() => {
     localStorage.setItem('games-filter-platform', platformFilter)
@@ -323,6 +341,12 @@ function GamesView({
   useEffect(() => {
     localStorage.setItem('games-sort', sortBy)
   }, [sortBy])
+  useEffect(() => {
+    localStorage.setItem('ni-filter-platform', niPlatformFilter)
+  }, [niPlatformFilter])
+  useEffect(() => {
+    localStorage.setItem('ni-sort', niSort)
+  }, [niSort])
 
   const reloadGames = useCallback(async () => {
     try {
@@ -434,16 +458,38 @@ function GamesView({
     return list
   }, [playable, search, platformFilter, sortBy, liveTotal])
 
-  // Nicht installierte Spiele: gleiche Suche + Plattform-Filter wie oben.
+  // Plattformen, von denen es nicht installierte Spiele gibt.
+  const niAvailablePlatforms = useMemo(
+    () => [...new Set((notInstalled ?? []).map((g) => g.source))] as Platform[],
+    [notInstalled]
+  )
+
+  // Nicht installierte Spiele: eigene Suche + Plattform-Filter + Sortierung.
   const visibleNotInstalled = useMemo(() => {
     if (!notInstalled) return []
-    const term = search.trim().toLowerCase()
-    return notInstalled.filter(
+    const term = niSearch.trim().toLowerCase()
+    const list = notInstalled.filter(
       (g) =>
-        (platformFilter === 'all' || g.source === platformFilter) &&
+        (niPlatformFilter === 'all' || g.source === niPlatformFilter) &&
         (term === '' || g.name.toLowerCase().includes(term))
     )
-  }, [notInstalled, search, platformFilter])
+    switch (niSort) {
+      case 'name':
+        list.sort((a, b) => a.name.localeCompare(b.name, 'de'))
+        break
+      case 'playtime':
+        list.sort((a, b) => b.playtimeSec - a.playtimeSec)
+        break
+      default: // zuletzt gespielt (mit Spielzeit/Name als Gleichstand-Auflösung)
+        list.sort(
+          (a, b) =>
+            (b.lastPlayed ?? 0) - (a.lastPlayed ?? 0) ||
+            b.playtimeSec - a.playtimeSec ||
+            a.name.localeCompare(b.name, 'de')
+        )
+    }
+    return list
+  }, [notInstalled, niSearch, niPlatformFilter, niSort])
 
   if (selected) {
     return (
@@ -557,8 +603,51 @@ function GamesView({
               <div className="games-head">
                 <h2 className="section-title">
                   Nicht installiert
-                  <span className="games-count"> ({visibleNotInstalled.length})</span>
+                  <span className="games-count">
+                    {' '}
+                    ({visibleNotInstalled.length}
+                    {notInstalled.length !== visibleNotInstalled.length
+                      ? ` von ${notInstalled.length}`
+                      : ''}
+                    )
+                  </span>
                 </h2>
+                {notInstalled.length > 0 && (
+                  <div className="games-toolbar">
+                    <input
+                      type="text"
+                      className="toolbar-input"
+                      placeholder="🔍 Spiel suchen …"
+                      value={niSearch}
+                      onChange={(e) => setNiSearch(e.target.value)}
+                    />
+                    <select
+                      className="toolbar-select"
+                      value={niPlatformFilter}
+                      onChange={(e) => setNiPlatformFilter(e.target.value)}
+                      title="Nach Plattform filtern"
+                    >
+                      <option value="all">Alle Plattformen</option>
+                      {niAvailablePlatforms.map((p) => (
+                        <option key={p} value={p}>
+                          {platformLabel(p)}
+                        </option>
+                      ))}
+                    </select>
+                    <select
+                      className="toolbar-select"
+                      value={niSort}
+                      onChange={(e) => setNiSort(e.target.value as NiSort)}
+                      title="Sortierung"
+                    >
+                      {NI_SORT_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>
+                          Sortieren: {o.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
               </div>
               {niInfo &&
                 (() => {
