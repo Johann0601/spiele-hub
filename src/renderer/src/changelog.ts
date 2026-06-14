@@ -11,6 +11,15 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.13.0',
+    date: '2026-06-14',
+    title: 'Erste-Schritte-Begrüßung',
+    changes: [
+      'Beim allerersten Start begrüßt dich jetzt ein kurzes Pop-up und bietet an, den (optionalen) Steam-Web-API-Key einzugeben — für Erfolge und den vollständigen Besitz-Katalog.',
+      'Alles überspringbar: Mit „Überspringen" geht es sofort los, und Schlüssel/Konten lassen sich jederzeit später unter Einstellungen → Konten nachtragen.'
+    ]
+  },
+  {
     version: '0.12.1',
     date: '2026-06-14',
     title: 'Preisvergleich eingebaut',

@@ -17,6 +17,7 @@ import logoUrl from './assets/logo.svg'
 import GameDetailExtras from './GameDetailExtras'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
+import Onboarding from './Onboarding'
 import NotificationsView from './NotificationsView'
 import SettingsView from './SettingsView'
 import ShopsView from './ShopsView'
@@ -47,6 +48,14 @@ function App(): JSX.Element {
   const [theme, setTheme] = useState<Theme>(() =>
     localStorage.getItem('theme') === 'light' ? 'light' : 'dark'
   )
+  // Erste-Schritte-Pop-up nur beim allerersten Start zeigen.
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => localStorage.getItem('onboarding-done') !== '1'
+  )
+  const dismissOnboarding = (): void => {
+    localStorage.setItem('onboarding-done', '1')
+    setShowOnboarding(false)
+  }
 
   // Daten für die Benachrichtigungs-Glocke: ausstehende Spiel-Updates,
   // Nvidia-Treiber, Wunschlisten-Rabatte und nicht eingelöste Epic-Gratisspiele.
@@ -278,6 +287,13 @@ function App(): JSX.Element {
           <SettingsView view={view} onNavigate={setView} theme={theme} onThemeChange={setTheme} />
         )}
       </div>
+
+      {showOnboarding && (
+        <Onboarding
+          onClose={dismissOnboarding}
+          onOpenAccounts={() => setView('settings-accounts')}
+        />
+      )}
     </div>
   )
 }
