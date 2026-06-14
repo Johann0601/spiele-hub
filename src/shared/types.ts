@@ -35,6 +35,32 @@ export interface GameCard {
   sizeBytes: number | null // Ordnergröße der Installation (null = noch nicht berechnet)
 }
 
+/**
+ * Ein besessenes, aber NICHT installiertes Spiel — quellenübergreifend:
+ *  - Steam: kompletter Besitz-Katalog (braucht den Web-API-Key)
+ *  - Epic:  komplette Bibliothek (braucht das verbundene Konto)
+ *  - andere Launcher: nur Spiele, die mal installiert waren (DB merkt sie sich)
+ */
+export interface NotInstalledGame {
+  source: Platform
+  platformId: string // Steam-AppID / Epic appName / DB platform_id
+  name: string
+  coverUrl: string | null
+  playtimeSec: number // bekannte Spielzeit (offiziell oder selbst getrackt), 0 = unbekannt
+  lastPlayed: number | null // Unix-Sek. — nur Steam (rtime_last_played) + unser Tracking
+  installUrl: string | null // Protokoll-URL zum Installieren; null = Launcher öffnen
+}
+
+/** Ergebnis des Abrufs nicht installierter (aber besessener/bekannter) Spiele. */
+export interface NotInstalledResult {
+  ok: boolean
+  games: NotInstalledGame[]
+  steamKeyMissing: boolean // true = ohne Steam-Key fehlt der Steam-Katalog
+  steamLoaded: boolean // false trotz Key = Spieldetails wohl privat
+  epicConnected: boolean // false = ohne verbundenes Konto fehlt der Epic-Katalog
+  error?: string
+}
+
 // --- Speicherplatz-Analyse ---
 
 /** Speicherbelegung eines installierten Spiels. */

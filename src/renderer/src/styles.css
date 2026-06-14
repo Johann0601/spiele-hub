@@ -433,6 +433,81 @@ body {
   color: var(--muted);
 }
 
+/* ---- Nicht installierte Spiele (Besitz-Katalog) ---- */
+.ni-section {
+  margin-top: 32px;
+}
+
+.ni-loading {
+  margin-top: 32px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.ni-hint {
+  margin: -4px 0 14px;
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+/* Kachel ist nicht anklickbar (kein Detail) — Cover dezent abgedunkelt. */
+.tile.not-installed {
+  cursor: default;
+}
+
+.tile.not-installed:hover {
+  transform: none;
+  border-color: var(--accent);
+}
+
+.tile.not-installed .cover img,
+.tile.not-installed .cover-fallback {
+  opacity: 0.7;
+  filter: saturate(0.85);
+}
+
+.ni-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(15, 17, 23, 0.85);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 7px;
+  backdrop-filter: blur(4px);
+}
+
+.ni-install {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  padding: 7px 10px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+}
+
+.tile.not-installed:hover .ni-install {
+  opacity: 1;
+}
+
+.ni-install:hover {
+  filter: brightness(1.1);
+}
+
 /* ---- Laufendes Spiel ---- */
 .tile.running {
   border-color: var(--ok);

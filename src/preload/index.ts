@@ -17,6 +17,7 @@ import type {
   NvidiaUpdate,
   RunningGame,
   McProfile,
+  NotInstalledResult,
   ScanResult,
   SgdbStatus,
   SteamKeyStatus,
@@ -51,6 +52,10 @@ const api = {
 
   /** Bereits gespeicherte Spiele aus der DB laden (ohne neuen Scan). */
   listGames: (): Promise<GameCard[]> => ipcRenderer.invoke('games:list'),
+
+  /** Besessene/bekannte, aber nicht installierte Spiele (Steam + Epic + DB-Reste). */
+  listNotInstalledGames: (): Promise<NotInstalledResult> =>
+    ipcRenderer.invoke('games:not-installed'),
 
   /** Spiel/Launcher starten (per Eintrags-ID). */
   launchGame: (id: number): Promise<{ ok: boolean }> => ipcRenderer.invoke('game:launch', id),

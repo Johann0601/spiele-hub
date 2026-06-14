@@ -11,6 +11,18 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.9.0',
+    date: '2026-06-14',
+    title: 'Nicht installierte Spiele',
+    changes: [
+      'Neue Kategorie „Nicht installiert" unter den installierten Spielen: zeigt deinen kompletten Besitz-Katalog, der gerade nicht installiert ist — mit Spielzeit und (wo verfügbar) „zuletzt gespielt".',
+      'Steam liefert den ganzen Besitz-Katalog samt echtem „zuletzt gespielt" (braucht den Steam-Web-API-Key und öffentliche Spieldetails); Epic die komplette Bibliothek (braucht das verbundene Konto).',
+      'Andere Launcher (Battle.net, Ubisoft, Riot, RSI, Xbox) haben keine solche Schnittstelle — dort erscheinen Spiele, die mal installiert waren (z. B. dein deinstalliertes Call of Duty), weiterhin mit erhaltener Spielzeit.',
+      'Direkt aus der Kachel installieren: bei Steam öffnet sich der Installations-Dialog, bei Epic der Launcher; Suche und Plattform-Filter gelten auch hier.',
+      'Ein Hinweis erklärt, was noch fehlt (Key hinterlegen, Konto verbinden oder Steam-Spieldetails auf „öffentlich" stellen).'
+    ]
+  },
+  {
     version: '0.8.2',
     date: '2026-06-12',
     title: 'Deinstallierte Spiele werden erkannt',

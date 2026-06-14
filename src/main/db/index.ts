@@ -248,10 +248,11 @@ interface GameRow {
 }
 
 /**
- * Liefert alle Spiele inkl. Gesamt-Spielzeit:
+ * Liefert Spiele inkl. Gesamt-Spielzeit:
  *   Gesamt = eingefrorener Steam-Startwert + Summe aller abgeschlossenen Sitzungen.
+ * `installed` wählt zwischen installierten (1, Standard) und deinstallierten (0) Einträgen.
  */
-export function listGames(): GameCard[] {
+function queryGames(installed: 0 | 1): GameCard[] {
   const rows = getDatabase()
     .prepare(
       `
@@ -262,11 +263,11 @@ export function listGames(): GameCard[] {
           + COALESCE((SELECT SUM(s.duration_sec) FROM play_sessions s
                       WHERE s.game_id = g.id AND s.duration_sec IS NOT NULL), 0) AS total_playtime_sec
       FROM games g
-      WHERE g.installed = 1
+      WHERE g.installed = ?
       ORDER BY total_playtime_sec DESC, g.name COLLATE NOCASE ASC
     `
     )
-    .all() as GameRow[]
+    .all(installed) as GameRow[]
 
   return rows.map((r) => ({
     id: r.id,
@@ -282,6 +283,20 @@ export function listGames(): GameCard[] {
     manifestLastUpdated: r.manifest_updated,
     sizeBytes: r.size_bytes
   }))
+}
+
+/** Alle installierten Spiele/Launcher (für Bibliothek, Tracking, Glocke). */
+export function listGames(): GameCard[] {
+  return queryGames(1)
+}
+
+/**
+ * Spiele, die mal installiert waren und jetzt nicht mehr (installed = 0) —
+ * Grundlage für die Kategorie „Nicht installiert" bei Launchern ohne Katalog-API.
+ * Spielzeiten bleiben erhalten, deshalb tauchen sie hier mit ihren Werten auf.
+ */
+export function listUninstalledGames(): GameCard[] {
+  return queryGames(0).filter((g) => g.kind === 'game')
 }
 
 /**

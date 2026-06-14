@@ -1,7 +1,9 @@
+import type React from 'react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import type {
   EpicFreeGame,
   GameCard,
+  NotInstalledGame,
   NvidiaUpdate,
   Platform,
   RunningGame,
@@ -271,6 +273,14 @@ function GamesView({
     const saved = localStorage.getItem('games-sort')
     return SORT_OPTIONS.some((o) => o.value === saved) ? (saved as GameSort) : 'playtime'
   })
+  // Nicht installierte Spiele (Besitz-Katalog) — separat geladen, damit die
+  // Seite sofort steht und der (teils langsame) Katalog-Abruf nachrückt.
+  const [notInstalled, setNotInstalled] = useState<NotInstalledGame[] | null>(null)
+  const [niInfo, setNiInfo] = useState<{
+    steamKeyMissing: boolean
+    steamLoaded: boolean
+    epicConnected: boolean
+  } | null>(null)
 
   useEffect(() => {
     localStorage.setItem('games-filter-platform', platformFilter)
@@ -287,6 +297,23 @@ function GamesView({
     }
   }, [])
 
+  // Besitz-Katalog laden (Steam + Epic + DB-Reste). Eigener Aufruf, weil der
+  // Netz-Abruf je nach Bibliotheksgröße ein paar Sekunden dauern kann.
+  const loadNotInstalled = useCallback(async () => {
+    setNotInstalled(null)
+    try {
+      const res = await window.api.listNotInstalledGames()
+      setNotInstalled(res.ok ? res.games : [])
+      setNiInfo({
+        steamKeyMissing: res.steamKeyMissing,
+        steamLoaded: res.steamLoaded,
+        epicConnected: res.epicConnected
+      })
+    } catch {
+      setNotInstalled([])
+    }
+  }, [])
+
   const scan = useCallback(async () => {
     setScanning(true)
     setError(null)
@@ -298,8 +325,9 @@ function GamesView({
       setError(String(err))
     } finally {
       setScanning(false)
+      loadNotInstalled() // nach dem Scan stimmt die „installiert"-Liste -> Katalog auffrischen
     }
-  }, [])
+  }, [loadNotInstalled])
 
   // Start: Liste laden, scannen, und auf Wächter-Updates hören.
   useEffect(() => {
@@ -370,6 +398,17 @@ function GamesView({
     }
     return list
   }, [playable, search, platformFilter, sortBy, liveTotal])
+
+  // Nicht installierte Spiele: gleiche Suche + Plattform-Filter wie oben.
+  const visibleNotInstalled = useMemo(() => {
+    if (!notInstalled) return []
+    const term = search.trim().toLowerCase()
+    return notInstalled.filter(
+      (g) =>
+        (platformFilter === 'all' || g.source === platformFilter) &&
+        (term === '' || g.name.toLowerCase().includes(term))
+    )
+  }, [notInstalled, search, platformFilter])
 
   if (selected) {
     return (
@@ -473,7 +512,95 @@ function GamesView({
             />
           ))}
         </div>
+
+        {/* Nicht installierte Spiele (Besitz-Katalog) */}
+        {notInstalled === null ? (
+          <div className="ni-loading">Lade nicht installierte Spiele …</div>
+        ) : (
+          (notInstalled.length > 0 || niInfo) && (
+            <section className="ni-section">
+              <div className="games-head">
+                <h2 className="section-title">
+                  Nicht installiert
+                  <span className="games-count"> ({visibleNotInstalled.length})</span>
+                </h2>
+              </div>
+              {niInfo &&
+                (() => {
+                  const hints: string[] = []
+                  if (niInfo.steamKeyMissing)
+                    hints.push('Steam-Web-API-Key hinterlegen (Einstellungen → Konten)')
+                  else if (!niInfo.steamLoaded)
+                    hints.push(
+                      'deine Steam-Spieldetails auf „öffentlich" stellen (sonst bleibt der Steam-Katalog leer)'
+                    )
+                  if (!niInfo.epicConnected)
+                    hints.push('Epic-Konto verbinden (Einstellungen → Konten)')
+                  return hints.length > 0 ? (
+                    <div className="ni-hint">
+                      ℹ Für den vollständigen Katalog: {hints.join(' · ')}.
+                    </div>
+                  ) : null
+                })()}
+              {visibleNotInstalled.length === 0 ? (
+                <div className="empty">
+                  {notInstalled.length === 0
+                    ? 'Alle bekannten Spiele sind installiert.'
+                    : 'Kein Spiel passt zu Suche/Filter.'}
+                </div>
+              ) : (
+                <div className="grid">
+                  {visibleNotInstalled.map((game) => (
+                    <NotInstalledTile key={`${game.source}:${game.platformId}`} game={game} />
+                  ))}
+                </div>
+              )}
+            </section>
+          )
+        )}
       </main>
+    </div>
+  )
+}
+
+/** Eine Kachel für ein besessenes, aber nicht installiertes Spiel. */
+function NotInstalledTile({ game }: { game: NotInstalledGame }): JSX.Element {
+  const [failed, setFailed] = useState(false)
+  const isLogo =
+    !!game.coverUrl &&
+    (game.coverUrl.includes('upload.wikimedia.org') || game.coverUrl.startsWith('cover://xbox/'))
+
+  const install = (e: React.MouseEvent): void => {
+    e.stopPropagation()
+    if (game.installUrl) window.open(game.installUrl) // steam://install/… bzw. Epic-Protokoll
+    else window.api.openPlatformLauncher(game.source) // Launcher ohne Direkt-Link
+  }
+
+  return (
+    <div className="tile not-installed" title={game.name}>
+      <div className="cover">
+        {game.coverUrl && !failed ? (
+          <img
+            src={game.coverUrl}
+            alt={game.name}
+            className={isLogo ? 'logo-cover' : undefined}
+            onError={() => setFailed(true)}
+          />
+        ) : (
+          <div className="cover-fallback">{game.name.charAt(0).toUpperCase()}</div>
+        )}
+        <span className="ni-badge">{platformLabel(game.source)}</span>
+        <button className="ni-install" onClick={install}>
+          {game.installUrl ? '⬇ Installieren' : '↗ Launcher öffnen'}
+        </button>
+      </div>
+      <div className="tile-info">
+        <div className="tile-name">{game.name}</div>
+        <div className="tile-meta">
+          {game.playtimeSec > 0 ? formatPlaytime(game.playtimeSec) : 'Nie gespielt'}
+          {game.lastPlayed ? ` · ${formatLastPlayed(game.lastPlayed)}` : ''}
+        </div>
+      </div>
     </div>
   )
 }
