@@ -59,7 +59,7 @@ function NotificationsView({
               <span className="settings-row-icon">⬆️</span>
               <div className="settings-row-main">
                 <div className="settings-row-title">
-                  Spiele Hub {appUpdateVersion} ist bereit
+                  buffd {appUpdateVersion} ist bereit
                 </div>
                 <div className="settings-row-desc">
                   Das App-Update wurde bereits heruntergeladen — die App startet zum Installieren

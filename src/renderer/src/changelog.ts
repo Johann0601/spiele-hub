@@ -11,6 +11,18 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.10.0',
+    date: '2026-06-14',
+    title: 'Neuer Name: buffd',
+    changes: [
+      'Die App heißt jetzt „buffd" — mit eigenem Logo (Hexagon-Hub-Symbol) und Wortmarke in der Seitenleiste und im Kopfbereich.',
+      'Neues App-Icon für Fenster, Taskleiste, Startmenü- und Desktop-Verknüpfung.',
+      'Hell-Modus überarbeitet: Kopfzeilen sind jetzt im hellen Design gut lesbar (vorher dunkel auf dunkel), und die Seitenleiste bleibt bewusst dunkel, damit die Symbole klar erkennbar sind.',
+      'Der Schalter heißt jetzt „Darkmode" und ist standardmäßig an.',
+      'Deine Daten bleiben vollständig erhalten — Spielzeiten, Konten und Einstellungen wandern unverändert mit.'
+    ]
+  },
+  {
     version: '0.9.2',
     date: '2026-06-14',
     title: 'Nicht-installiert: Suche, Filter & Sortierung',

@@ -69,7 +69,7 @@ function ShopsView(): JSX.Element {
           <span className="subtitle">Angebote & Plattform-Details</span>
         </div>
         <button className="btn" onClick={() => setSelected('wishlist')}>
-          ⭐ Wunschliste
+          <span className="wl-star">★</span> Wunschliste
         </button>
       </header>
       <main className="content">
@@ -674,7 +674,7 @@ function WishlistView({ onBack }: { onBack: () => void }): JSX.Element {
           ← Zurück
         </button>
         <div className="brand">
-          <h1>⭐ Wunschliste</h1>
+          <h1><span className="wl-star">★</span> Wunschliste</h1>
           {wishlist.length > 0 && <span className="subtitle">{wishlist.length} Spiele</span>}
         </div>
         <button

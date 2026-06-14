@@ -35,16 +35,16 @@ function SettingsView({
         <h2 className="section-title">Darstellung</h2>
         <div className="settings-row">
           <div className="settings-row-main">
-            <div className="settings-row-title">Hell-Modus</div>
+            <div className="settings-row-title">Darkmode</div>
             <div className="settings-row-desc">
-              Schaltet zwischen dunklem und hellem Erscheinungsbild um.
+              Dunkles Erscheinungsbild (Standard). Ausschalten für den Hell-Modus.
             </div>
           </div>
-          <label className="switch" title="Hell-Modus an/aus">
+          <label className="switch" title="Darkmode an/aus">
             <input
               type="checkbox"
-              checked={theme === 'light'}
-              onChange={(e) => onThemeChange(e.target.checked ? 'light' : 'dark')}
+              checked={theme === 'dark'}
+              onChange={(e) => onThemeChange(e.target.checked ? 'dark' : 'light')}
             />
             <span className="slider" />
           </label>

@@ -1,6 +1,6 @@
 {
   "name": "spiele-hub",
-  "version": "0.9.2",
+  "version": "0.10.0",
   "description": "Zentraler Hub für PC-Spiele und Launcher",
   "main": "./out/main/index.js",
   "author": "johan",

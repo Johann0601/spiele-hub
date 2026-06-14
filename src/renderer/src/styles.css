@@ -11,6 +11,7 @@
   --sidebar-bg: #0c0e14;
   --scroll: #2c3346;
   --scroll-hover: #3b455c;
+  --btn-hover: #2a3042; /* Hover-Hintergrund neutraler Knöpfe */
 }
 
 /* Hell-Modus: dieselben Variablen, helle Werte. Umschalten in den Einstellungen. */
@@ -24,9 +25,61 @@
   --ok: #15803d;
   --error: #dc2626;
   --border: #d4d9e4;
-  --sidebar-bg: #e3e7ef;
+  /* --sidebar-bg bleibt dunkel (siehe .sidebar) — nicht überschreiben. */
   --scroll: #c0c8d8;
   --scroll-hover: #a7b1c6;
+  --btn-hover: #d3dae8; /* heller Hover statt des dunklen #2a3042 */
+}
+
+/* Hell-Modus: kräftigere Schriftfarben für getönte Banner & Tags. Die
+   ursprünglichen Pastelltöne (#c2cdff, #ffd27a, …) sind für DUNKLEN Grund
+   gedacht und auf hellem Hintergrund viel zu kontrastarm. */
+:root[data-theme='light'] .banner.info {
+  color: #283fa0;
+  background: rgba(108, 140, 255, 0.12);
+  border-color: rgba(59, 91, 219, 0.4);
+}
+
+:root[data-theme='light'] .banner.error {
+  color: #b91c1c;
+  background: rgba(220, 38, 38, 0.1);
+  border-color: rgba(220, 38, 38, 0.4);
+}
+
+:root[data-theme='light'] .tag.update,
+:root[data-theme='light'] .history-type.erkannt {
+  color: #8a5500;
+}
+
+:root[data-theme='light'] .tag.update {
+  background: rgba(214, 158, 46, 0.18);
+  border-color: rgba(176, 120, 0, 0.55);
+}
+
+:root[data-theme='light'] .tag.nvidia {
+  color: #3f6d00;
+  background: rgba(118, 185, 0, 0.16);
+  border-color: rgba(90, 140, 0, 0.5);
+}
+
+/* Gefahr-Knopf (Deinstallieren) im Hell-Modus: heller Rot-Ton statt dunkel. */
+:root[data-theme='light'] .btn.danger {
+  background: rgba(220, 38, 38, 0.1);
+  color: #b91c1c;
+}
+
+:root[data-theme='light'] .btn.danger:hover:not(:disabled) {
+  background: rgba(220, 38, 38, 0.18);
+}
+
+/* Wunschlisten-Stern: Text-Glyph statt ⭐-Emoji -> immer gut erkennbar.
+   Goldton, im Hell-Modus dunkler für genug Kontrast. */
+.wl-star {
+  color: #f5b50a;
+}
+
+:root[data-theme='light'] .wl-star {
+  color: #b07a00;
 }
 
 * {
@@ -82,6 +135,17 @@ body {
    Inhalt zur Seite (statt ihn zu überdecken). Die kleine Verzögerung beim
    Aufklappen verhindert, dass die Leiste bei jedem Vorbeifahren aufschnappt. */
 .sidebar {
+  /* Die Seitenleiste bleibt in BEIDEN Themes dunkel (wie Discord/VS Code) —
+     dadurch sind die farbigen Emojis immer gut lesbar. Wir überschreiben die
+     Farb-Variablen lokal, sodass alle Kinder (Tabs, Marke, Fußzeile) die
+     dunkle Palette erben, auch wenn außen der Hell-Modus aktiv ist. */
+  --bg: #0f1117;
+  --text: #e6e8ee;
+  --muted: #9aa3b2;
+  --panel: #181b24;
+  --panel-2: #1f2330;
+  --border: #262b39;
+  --accent: #6c8cff;
   position: fixed;
   left: 0;
   top: 0;
@@ -121,9 +185,11 @@ body {
 }
 
 .sidebar-brand {
-  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   font-weight: 700;
-  padding: 8px 9px 18px;
+  padding: 6px 11px 16px;
   background: transparent;
   border: none;
   color: var(--text);
@@ -135,6 +201,44 @@ body {
 .sidebar-brand:hover,
 .sidebar-brand.active {
   color: var(--accent);
+}
+
+/* Marke in der Seitenleiste: Logo-Symbol bleibt IMMER gleich groß (auch beim
+   Aufklappen); der Schriftzug „buffd" erscheint nur ausgeklappt. */
+.brand-mark {
+  width: 30px;
+  height: 30px;
+  display: block;
+  flex: none;
+}
+
+.brand-text {
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1;
+  color: var(--text);
+}
+
+.brand-text-accent {
+  color: var(--accent);
+}
+
+.sidebar:hover .brand-text {
+  max-width: 170px;
+  opacity: 1;
+}
+
+/* Marke in der Kopfzeile der Spiele-Seite. */
+.brand-title {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-title-mark {
+  width: 28px;
+  height: 28px;
 }
 
 .nav-item {
@@ -221,7 +325,9 @@ body {
   justify-content: space-between;
   padding: 16px 24px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, #141824, #0f1117);
+  /* theme-abhängig: dunkel im Darkmode, hell im Hell-Modus
+     (vorher fest dunkel -> dunkle Schrift auf dunklem Grund im Hell-Modus). */
+  background: linear-gradient(180deg, var(--panel), var(--bg));
 }
 
 .brand {
@@ -253,7 +359,7 @@ body {
 }
 
 .btn:hover:not(:disabled) {
-  background: #2a3042;
+  background: var(--btn-hover);
   border-color: var(--accent);
 }
 
@@ -649,7 +755,7 @@ body {
 }
 
 .btn.primary:hover:not(:disabled) {
-  background: #5a7cff;
+  filter: brightness(1.08);
 }
 
 .btn.danger {
@@ -875,7 +981,7 @@ body {
 }
 
 .btn.small:hover {
-  background: #5a7cff;
+  filter: brightness(1.08);
 }
 
 .device-main {

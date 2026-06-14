@@ -431,7 +431,7 @@ function ItadKeyCard(): JSX.Element {
                 </a>{' '}
                 und melde dich an (kostenloses Konto).
               </li>
-              <li>Registriere eine neue App (Name egal, z. B. „Spiele Hub") und kopiere den API-Key.</li>
+              <li>Registriere eine neue App (Name egal, z. B. „buffd") und kopiere den API-Key.</li>
               <li>Hier einfügen — fertig.</li>
             </ol>
             <div className="account-actions">

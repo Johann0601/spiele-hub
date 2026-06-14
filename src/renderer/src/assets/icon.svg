@@ -1,0 +1,15 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg" role="img">
+<title>Gaming Hub App Icon</title>
+<desc>Logo auf dunklem, abgerundetem Kachel-Hintergrund.</desc>
+<rect x="0" y="0" width="256" height="256" rx="56" fill="#16181d"/>
+<g transform="translate(128,128)">
+  <path d="M0 -78 L68 -39 L68 39 L0 78 L-68 39 L-68 -39 Z" fill="none" stroke="#a855f7" stroke-width="7" stroke-linejoin="miter"/>
+  <line x1="0" y1="-14" x2="0" y2="-41" stroke="#a855f7" stroke-width="6.5" stroke-linecap="round"/>
+  <line x1="12" y1="7" x2="36" y2="21" stroke="#a855f7" stroke-width="6.5" stroke-linecap="round"/>
+  <line x1="-12" y1="7" x2="-36" y2="21" stroke="#a855f7" stroke-width="6.5" stroke-linecap="round"/>
+  <circle cx="0" cy="-44" r="10" fill="#a855f7"/>
+  <circle cx="38" cy="22" r="10" fill="#a855f7"/>
+  <circle cx="-38" cy="22" r="10" fill="#a855f7"/>
+  <circle cx="0" cy="0" r="9" fill="none" stroke="#a855f7" stroke-width="6"/>
+</g>
+</svg>

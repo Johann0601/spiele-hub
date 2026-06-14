@@ -13,6 +13,7 @@ import { formatGameSize, formatLastPlayed, formatPlaytime } from './format'
 import { platformLabel } from './platforms'
 import { updateActionFor } from './updateAction'
 import { uninstallActionFor } from './uninstallAction'
+import logoUrl from './assets/logo.svg'
 import GameDetailExtras from './GameDetailExtras'
 import HomeView from './HomeView'
 import ModsView from './ModsView'
@@ -183,7 +184,10 @@ function App(): JSX.Element {
           onClick={() => setView('home')}
           title="Zur Startseite"
         >
-          🎮<span className="nav-label"> Hub</span>
+          <img className="brand-mark" src={logoUrl} alt="" />
+          <span className="brand-text nav-label">
+            buff<span className="brand-text-accent">d</span>
+          </span>
         </button>
         <button
           className={`nav-item ${view === 'games' ? 'active' : ''}`}
@@ -507,7 +511,10 @@ function GamesView({
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <h1>🎮 Spiele Hub</h1>
+          <h1 className="brand-title">
+            <img className="brand-title-mark" src={logoUrl} alt="" />
+            buffd
+          </h1>
           <span className="subtitle">{playable.length} Spiele</span>
         </div>
         <button className="btn" onClick={scan} disabled={scanning}>

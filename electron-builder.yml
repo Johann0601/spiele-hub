@@ -1,8 +1,11 @@
 # Konfiguration für electron-builder — baut aus dem electron-vite-Output (out/)
 # einen Windows-Installer (NSIS). Aufruf: npm run dist
 
+# appId bleibt unverändert (com.spielehub.app) — sonst erkennt der NSIS-Installer
+# die bestehende Installation nicht und das Auto-Update bräche. Nur der
+# sichtbare Name wird zu „buffd".
 appId: com.spielehub.app
-productName: Spiele Hub
+productName: buffd
 
 # Wohin Releases hochgeladen werden UND wo die installierte App nach Updates
 # sucht (electron-updater liest das aus der mitgepackten app-update.yml).
@@ -44,6 +47,6 @@ nsis:
   perMachine: false # Installation pro Benutzer, braucht keine Admin-Rechte
   createDesktopShortcut: true
   createStartMenuShortcut: true
-  shortcutName: Spiele Hub
-  artifactName: Spiele Hub Setup ${version}.exe
+  shortcutName: buffd
+  artifactName: buffd Setup ${version}.exe
   deleteAppDataOnUninstall: false # Deinstallation löscht NICHT die Spielzeit-DB
