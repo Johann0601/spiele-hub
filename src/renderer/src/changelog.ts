@@ -11,6 +11,15 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.13.1',
+    date: '2026-06-14',
+    title: 'Update-Hinweis als Pop-up',
+    changes: [
+      'Sobald beim Start ein App-Update heruntergeladen wurde, erscheint jetzt ein Pop-up mit einem direkten „Jetzt neu starten & aktualisieren"-Knopf.',
+      'Mit „Später" verschwindet es und bleibt wie gewohnt in der 🔔-Glocke verfügbar.'
+    ]
+  },
+  {
     version: '0.13.0',
     date: '2026-06-14',
     title: 'Erste-Schritte-Begrüßung',

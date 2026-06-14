@@ -56,6 +56,9 @@ function App(): JSX.Element {
     localStorage.setItem('onboarding-done', '1')
     setShowOnboarding(false)
   }
+  // Update-Pop-up: erscheint, sobald ein Update heruntergeladen wurde. Per
+  // „Später" ausblendbar (bleibt dann in der 🔔-Glocke verfügbar).
+  const [updateDismissed, setUpdateDismissed] = useState(false)
 
   // Daten für die Benachrichtigungs-Glocke: ausstehende Spiel-Updates,
   // Nvidia-Treiber, Wunschlisten-Rabatte und nicht eingelöste Epic-Gratisspiele.
@@ -293,6 +296,26 @@ function App(): JSX.Element {
           onClose={dismissOnboarding}
           onOpenAccounts={() => setView('settings-accounts')}
         />
+      )}
+
+      {updateVersion && !updateDismissed && !showOnboarding && (
+        <div className="modal-backdrop">
+          <div className="modal update-prompt">
+            <h2>⬆️ Update bereit</h2>
+            <p className="onboard-intro">
+              buffd {updateVersion} wurde heruntergeladen. Zum Installieren startet die App nur
+              kurz neu — deine Daten bleiben natürlich erhalten.
+            </p>
+            <div className="onboard-actions">
+              <button className="btn" onClick={() => setUpdateDismissed(true)}>
+                Später
+              </button>
+              <button className="btn primary" onClick={() => window.api.installAppUpdate()}>
+                ⬆️ Jetzt neu starten &amp; aktualisieren
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )
