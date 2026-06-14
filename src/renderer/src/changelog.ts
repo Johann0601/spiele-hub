@@ -11,6 +11,14 @@ export type ChangelogEntry = {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: '0.10.1',
+    date: '2026-06-14',
+    title: 'Hell-Modus: Plaketten lesbar',
+    changes: [
+      'Die Spielzeit-Plakette auf den Spiel-Kacheln (und „● läuft" / Plattform-Markierung) war im Hell-Modus dunkel auf dunklem Grund — jetzt wieder klar lesbar.'
+    ]
+  },
+  {
     version: '0.10.0',
     date: '2026-06-14',
     title: 'Neuer Name: buffd',
